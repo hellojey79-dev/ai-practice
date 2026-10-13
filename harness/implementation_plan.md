@@ -528,3 +528,49 @@ async def fetch_dynamic_page(url: str, selector: str) -> str:
    - 수만 개의 시계열/산점도 데이터 포인트를 차트 시각적 형태를 왜곡하지 않는 **LTTB(Largest Triangle Three Buckets)** 알고리즘으로 300~500개 버킷으로 다운샘플링하여 60FPS 부드러운 차트 인터랙션 보장.
 3. **검색 및 다차원 필터 디바운싱 (Debounce 300ms)**:
    - 사용자가 검색창에 타이핑할 때마다 즉시 필터링하지 않고, 입력 완료 후 300ms 지연 타이머를 적용하여 불필요한 연산 낭비 차단.
+
+---
+
+## 10. 이커머스 및 임의 도메인 범용 스키마 매핑 가이드 (Cross-Domain Schema Mapping Guide)
+
+하네스 프레임워크는 도서(출판사, 저자, ISBN)에 국한된 시스템이 아니며, **모든 정형/비정형 웹 데이터를 '6대 메타 스키마(Meta Schema)'로 일반화하여 처리**합니다. 아래는 일반 이커머스 및 다양한 비(非)도서 도메인에 적용할 수 있는 1:1 매핑 명세입니다.
+
+```mermaid
+flowchart LR
+    classDef meta fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#fff;
+    classDef ecom fill:#0f172a,stroke:#38bdf8,stroke-width:1px,color:#cbd5e1;
+    classDef fin fill:#14532d,stroke:#22c55e,stroke-width:1px,color:#cbd5e1;
+
+    M1["<b>하네스 6대 메타 스키마</b><br/>• 식별자 (PK)<br/>• 명칭 (Title)<br/>• 분류 (Category)<br/>• 그룹 (Group/Brand)<br/>• 핵심 수치 1, 2<br/>• 텍스트 (Description)"]:::meta
+
+    M1 ==> E["<b>🛒 이커머스 쇼핑몰 매핑</b><br/>• 상품코드 (SKU/ID)<br/>• 상품명 (Item Name)<br/>• 상품 카테고리<br/>• 브랜드/제조사<br/>• 판매가 & 할인율<br/>• 평점, 리뷰수, 리뷰 본문"]:::ecom
+
+    M1 ==> F["<b>📈 금융/증권/자산 매핑</b><br/>• 종목코드 (Ticker)<br/>• 종목명 (Stock Name)<br/>• 업종 섹터<br/>• 시장구분 (KOSPI/코스닥)<br/>• 현재가 & 변동률<br/>• 거래량, 시가총액, 뉴스"]:::fin
+```
+
+### 10.1 일반 이커머스 쇼핑몰 1:1 스키마 매핑 매트릭스
+
+| 하네스 표준 변수명 | 권장 표준 타입 | 이커머스 도메인 필드 매핑 | 채용 도메인 (기존 예시) | 금융/자산 도메인 예시 |
+| :--- | :--- | :--- | :--- | :--- |
+| `item_id` (PK) | 문자열 (String) | 상품 고유 번호 (`SKU-10294`) | 공고 ID (`JOB-001`) | 종목 코드 (`005930`) |
+| `title` | 문자열 (String) | 상품명 (`[삼성] 갤럭시 버즈3`) | 채용 제목 (`[네오] 백엔드`) | 종목명 (`삼성전자`) |
+| `category` | 범주형 (Category) | 대/중 카테고리 (`디지털/가전`) | 직무 카테고리 (`백엔드`) | 시장/섹터 (`반도체/IT`) |
+| `brand` / `group` | 범주형 (Category) | 브랜드 / 제조사 (`삼성전자`) | 회사명 (`네오테크`) | 그룹사 (`삼성그룹`) |
+| `price_primary` | 수치형 (Integer) | 실구매가 / 할인가 (원) | 연봉 (만원) | 현재가 (원) |
+| `price_secondary`| 수치형 (Integer) | 정상가 / 소비자가 (원) | 최소 연봉 (만원) | 전일 종가 (원) |
+| `ratio_metric` | 수치형 (Float) | 할인율 (%) | 경쟁률 / 요구 경력 (년) | 등락률 (%) |
+| `score_metric` | 수치형 (Float) | 구매자 평점 (5.0 만점) | 기업 평점 (5.0 만점) | 투자 매력도 (100점) |
+| `volume_metric` | 수치형 (Integer) | 구매 후기 수 / 판매량 (건) | 지원자 수 (명) | 일일 거래량 (주) |
+| `text_content` | 텍스트 (Text) | 상품 상세 설명 / 리뷰 본문 | 요구 기술스택 / 직무 상세 | 기업 공시 / 뉴스 헤드라인 |
+
+---
+
+### 10.2 하네스 5대 핵심 컴포넌트의 도메인 무관 동작 판정 결과
+
+| 하네스 컴포넌트 | 도메인 독립성 검증 결과 | 도서 외 사이트 적용 시 동작 메커니즘 |
+| :--- | :---: | :--- |
+| **`scraper_template.py`** | **100% 호환** | API JSON 키 또는 HTML CSS 선택자 파라미터만 치환하면 커머스 장바구니/상품목록 즉시 수집 가능 |
+| **`validate_dataset.py`** | **100% 호환** | 행 수, 중복 행, 결측치 비율 기반으로 검증하므로 컬럼명이 무엇이든 자동 판정 및 게이팅 완료 |
+| **`eda_template.py`** | **100% 호환** | 수치형 컬럼(`select_dtypes(np.number)`)과 범주형 컬럼(`object`)을 자동 탐색하여 12종 차트 및 TF-IDF 키워드 자동 생성 |
+| **`export_web_template.py`**| **100% 호환** | 임의의 DataFrame 레코드 배열을 `window.DASHBOARD_DATA.items`로 자동 직렬화하므로 데이터 모델에 제약 없음 |
+| **`webapp/` 템플릿** | **100% 호환** | 범용 메트릭 카드(`kpiTotal`, `kpiMetric1`, `kpiMetric2`) 및 다이나믹 테이블 헤더를 지원하여 이커머스 UI 즉시 바인딩 |

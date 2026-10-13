@@ -3,6 +3,14 @@
 import sys
 import json
 
+# Windows 콘솔 인코딩 대응
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
+if hasattr(sys.stdin, "reconfigure"):
+    sys.stdin.reconfigure(encoding="utf-8")
+
 def handle_pre_invocation(data):
     """PreInvocation 이벤트 처리: 파이프라인 규칙 및 표준 가이드 주입."""
     response = {

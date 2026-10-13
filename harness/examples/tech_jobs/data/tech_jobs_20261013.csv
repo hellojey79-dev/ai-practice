@@ -1,0 +1,81 @@
+﻿job_id,title,company,category,role_name,experience_years,annual_salary_manwon,company_rating,applicant_count,location,tech_skills,scraped_at
+JOB-0001,[데이터웨이브] 데이터 분석가 (EDA/BI) 채용 (경력 12년 이상),데이터웨이브,분석,데이터 분석가 (EDA/BI),12,7253,3.8,40,서울 강남구,SQL Python Tableau Pandas PowerBI Matplotlib,2026-10-13
+JOB-0002,[데이터웨이브] AI/ML 엔지니어 채용 (경력 7년 이상),데이터웨이브,AI/ML,AI/ML 엔지니어,7,7760,3.5,60,원격근무(하이브리드),Go Kubernetes gRPC Docker Kafka AWS,2026-10-13
+JOB-0003,[네오테크] 풀스택 웹 엔지니어 채용 (경력 4년 이상),네오테크,웹,풀스택 웹 엔지니어,4,10823,4.5,112,원격근무(하이브리드),Go Kubernetes gRPC Docker Kafka AWS,2026-10-13
+JOB-0004,[넥스트인텔리전스] 클라우드 DevOps 아키텍트 채용 (경력 3년 이상),넥스트인텔리전스,인프라,클라우드 DevOps 아키텍트,3,12219,4.1,76,서울 강남구,Go Kubernetes gRPC Docker Kafka AWS,2026-10-13
+JOB-0005,[하이퍼링크] 백엔드 개발자 (Python/Go) 채용 (경력 2년 이상),하이퍼링크,백엔드,백엔드 개발자 (Python/Go),2,9112,3.6,93,서울 강남구,TypeScript React Next.js Node.js Tailwind PostgreSQL,2026-10-13
+JOB-0006,[네오테크] 데이터 플랫폼 엔지니어 채용 (경력 9년 이상),네오테크,데이터,데이터 플랫폼 엔지니어,9,7822,4.9,101,원격근무(전면),Python PyTorch LangChain Docker FastAPI AWS,2026-10-13
+JOB-0007,[넥스트인텔리전스] 풀스택 웹 엔지니어 채용 (경력 6년 이상),넥스트인텔리전스,웹,풀스택 웹 엔지니어,6,10229,3.8,22,원격근무(하이브리드),Python PyTorch LangChain Docker FastAPI AWS,2026-10-13
+JOB-0008,[클라우드나인] 데이터 분석가 (EDA/BI) 채용 (경력 2년 이상),클라우드나인,분석,데이터 분석가 (EDA/BI),2,6907,4.7,102,서울 송파구,Python Spark Airflow Kafka SQL BigQuery,2026-10-13
+JOB-0009,[하이퍼링크] 클라우드 DevOps 아키텍트 채용 (경력 6년 이상),하이퍼링크,인프라,클라우드 DevOps 아키텍트,6,9410,3.8,73,서울 판교,SQL Python Tableau Pandas PowerBI Matplotlib,2026-10-13
+JOB-0010,[데이터웨이브] 데이터 분석가 (EDA/BI) 채용 (경력 11년 이상),데이터웨이브,분석,데이터 분석가 (EDA/BI),11,6401,4.2,67,원격근무(하이브리드),Go Kubernetes gRPC Docker Kafka AWS,2026-10-13
+JOB-0011,[큐브랩스] 클라우드 DevOps 아키텍트 채용 (경력 11년 이상),큐브랩스,인프라,클라우드 DevOps 아키텍트,11,12137,4.3,180,서울 송파구,Python Spark Airflow Kafka SQL BigQuery,2026-10-13
+JOB-0012,[네오테크] LLM 에이전트 연구원 채용 (경력 1년 이상),네오테크,AI/ML,LLM 에이전트 연구원,1,14594,3.9,73,서울 판교,Python PyTorch LangChain Docker FastAPI AWS,2026-10-13
+JOB-0013,[하이퍼링크] 백엔드 개발자 (Python/Go) 채용 (경력 11년 이상),하이퍼링크,백엔드,백엔드 개발자 (Python/Go),11,10089,4.1,169,서울 판교,Terraform AWS Kubernetes CI/CD Linux Prometheus,2026-10-13
+JOB-0014,[넥스트인텔리전스] 백엔드 개발자 (Python/Go) 채용 (경력 4년 이상),넥스트인텔리전스,백엔드,백엔드 개발자 (Python/Go),4,10598,4.3,154,서울 판교,Terraform AWS Kubernetes CI/CD Linux Prometheus,2026-10-13
+JOB-0015,[큐브랩스] 풀스택 웹 엔지니어 채용 (경력 4년 이상),큐브랩스,웹,풀스택 웹 엔지니어,4,6633,4.2,28,서울 송파구,Python PyTorch Transformers vLLM RAG LangGraph,2026-10-13
+JOB-0016,[데이터웨이브] AI/ML 엔지니어 채용 (경력 11년 이상),데이터웨이브,AI/ML,AI/ML 엔지니어,11,8810,4.6,113,서울 판교,TypeScript React Next.js Node.js Tailwind PostgreSQL,2026-10-13
+JOB-0017,[큐브랩스] AI/ML 엔지니어 채용 (경력 10년 이상),큐브랩스,AI/ML,AI/ML 엔지니어,10,11334,4.2,146,원격근무(전면),Python PyTorch Transformers vLLM RAG LangGraph,2026-10-13
+JOB-0018,[데이터웨이브] AI/ML 엔지니어 채용 (경력 5년 이상),데이터웨이브,AI/ML,AI/ML 엔지니어,5,13796,4.4,33,원격근무(하이브리드),Python Spark Airflow Kafka SQL BigQuery,2026-10-13
+JOB-0019,[알파소프트] 클라우드 DevOps 아키텍트 채용 (경력 1년 이상),알파소프트,인프라,클라우드 DevOps 아키텍트,1,12415,4.7,72,원격근무(전면),TypeScript React Next.js Node.js Tailwind PostgreSQL,2026-10-13
+JOB-0020,[알파소프트] LLM 에이전트 연구원 채용 (경력 2년 이상),알파소프트,AI/ML,LLM 에이전트 연구원,2,15131,4.4,168,원격근무(하이브리드),TypeScript React Next.js Node.js Tailwind PostgreSQL,2026-10-13
+JOB-0021,[클라우드나인] 풀스택 웹 엔지니어 채용 (경력 6년 이상),클라우드나인,웹,풀스택 웹 엔지니어,6,6823,4.3,140,서울 판교,Python PyTorch LangChain Docker FastAPI AWS,2026-10-13
+JOB-0022,[하이퍼링크] 풀스택 웹 엔지니어 채용 (경력 1년 이상),하이퍼링크,웹,풀스택 웹 엔지니어,1,6416,4.8,83,원격근무(전면),Go Kubernetes gRPC Docker Kafka AWS,2026-10-13
+JOB-0023,[클라우드나인] AI/ML 엔지니어 채용 (경력 2년 이상),클라우드나인,AI/ML,AI/ML 엔지니어,2,8201,4.5,22,원격근무(하이브리드),Python PyTorch Transformers vLLM RAG LangGraph,2026-10-13
+JOB-0024,[알파소프트] 풀스택 웹 엔지니어 채용 (경력 11년 이상),알파소프트,웹,풀스택 웹 엔지니어,11,9393,4.8,47,서울 판교,Python Spark Airflow Kafka SQL BigQuery,2026-10-13
+JOB-0025,[큐브랩스] 풀스택 웹 엔지니어 채용 (경력 9년 이상),큐브랩스,웹,풀스택 웹 엔지니어,9,7147,4.5,107,서울 판교,SQL Python Tableau Pandas PowerBI Matplotlib,2026-10-13
+JOB-0026,[하이퍼링크] 데이터 분석가 (EDA/BI) 채용 (경력 9년 이상),하이퍼링크,분석,데이터 분석가 (EDA/BI),9,8698,3.7,62,원격근무(전면),Python PyTorch LangChain Docker FastAPI AWS,2026-10-13
+JOB-0027,[네오테크] 데이터 플랫폼 엔지니어 채용 (경력 9년 이상),네오테크,데이터,데이터 플랫폼 엔지니어,9,8685,4.3,6,원격근무(하이브리드),Python PyTorch LangChain Docker FastAPI AWS,2026-10-13
+JOB-0028,[네오테크] 데이터 분석가 (EDA/BI) 채용 (경력 2년 이상),네오테크,분석,데이터 분석가 (EDA/BI),2,5257,4.7,23,서울 판교,TypeScript React Next.js Node.js Tailwind PostgreSQL,2026-10-13
+JOB-0029,[넥스트인텔리전스] 백엔드 개발자 (Python/Go) 채용 (경력 4년 이상),넥스트인텔리전스,백엔드,백엔드 개발자 (Python/Go),4,10417,3.7,151,원격근무(전면),TypeScript React Next.js Node.js Tailwind PostgreSQL,2026-10-13
+JOB-0030,[클라우드나인] 클라우드 DevOps 아키텍트 채용 (경력 7년 이상),클라우드나인,인프라,클라우드 DevOps 아키텍트,7,8059,3.6,173,원격근무(전면),Terraform AWS Kubernetes CI/CD Linux Prometheus,2026-10-13
+JOB-0031,[큐브랩스] 데이터 플랫폼 엔지니어 채용 (경력 8년 이상),큐브랩스,데이터,데이터 플랫폼 엔지니어,8,12772,3.6,172,원격근무(전면),SQL Python Tableau Pandas PowerBI Matplotlib,2026-10-13
+JOB-0032,[네오테크] AI/ML 엔지니어 채용 (경력 12년 이상),네오테크,AI/ML,AI/ML 엔지니어,12,10279,4.6,32,원격근무(전면),Go Kubernetes gRPC Docker Kafka AWS,2026-10-13
+JOB-0033,[클라우드나인] 백엔드 개발자 (Python/Go) 채용 (경력 8년 이상),클라우드나인,백엔드,백엔드 개발자 (Python/Go),8,7148,4.1,76,원격근무(하이브리드),Terraform AWS Kubernetes CI/CD Linux Prometheus,2026-10-13
+JOB-0034,[데이터웨이브] 백엔드 개발자 (Python/Go) 채용 (경력 9년 이상),데이터웨이브,백엔드,백엔드 개발자 (Python/Go),9,6802,3.6,143,원격근무(전면),Python PyTorch Transformers vLLM RAG LangGraph,2026-10-13
+JOB-0035,[데이터웨이브] AI/ML 엔지니어 채용 (경력 3년 이상),데이터웨이브,AI/ML,AI/ML 엔지니어,3,10829,4.2,59,서울 판교,Python PyTorch Transformers vLLM RAG LangGraph,2026-10-13
+JOB-0036,[네오테크] 클라우드 DevOps 아키텍트 채용 (경력 7년 이상),네오테크,인프라,클라우드 DevOps 아키텍트,7,6517,4.9,72,서울 판교,Python PyTorch Transformers vLLM RAG LangGraph,2026-10-13
+JOB-0037,[스마트모빌리티] LLM 에이전트 연구원 채용 (경력 7년 이상),스마트모빌리티,AI/ML,LLM 에이전트 연구원,7,13706,4.8,147,서울 송파구,SQL Python Tableau Pandas PowerBI Matplotlib,2026-10-13
+JOB-0038,[스마트모빌리티] 데이터 분석가 (EDA/BI) 채용 (경력 4년 이상),스마트모빌리티,분석,데이터 분석가 (EDA/BI),4,7430,3.8,19,서울 판교,TypeScript React Next.js Node.js Tailwind PostgreSQL,2026-10-13
+JOB-0039,[네오테크] 데이터 분석가 (EDA/BI) 채용 (경력 1년 이상),네오테크,분석,데이터 분석가 (EDA/BI),1,5410,4.3,133,서울 송파구,Python PyTorch Transformers vLLM RAG LangGraph,2026-10-13
+JOB-0040,[알파소프트] 풀스택 웹 엔지니어 채용 (경력 9년 이상),알파소프트,웹,풀스택 웹 엔지니어,9,6156,4.7,22,서울 강남구,TypeScript React Next.js Node.js Tailwind PostgreSQL,2026-10-13
+JOB-0041,[클라우드나인] AI/ML 엔지니어 채용 (경력 2년 이상),클라우드나인,AI/ML,AI/ML 엔지니어,2,12166,3.8,157,원격근무(전면),Python PyTorch LangChain Docker FastAPI AWS,2026-10-13
+JOB-0042,[데이터웨이브] 풀스택 웹 엔지니어 채용 (경력 11년 이상),데이터웨이브,웹,풀스택 웹 엔지니어,11,10281,4.3,85,원격근무(전면),Python Spark Airflow Kafka SQL BigQuery,2026-10-13
+JOB-0043,[하이퍼링크] 백엔드 개발자 (Python/Go) 채용 (경력 5년 이상),하이퍼링크,백엔드,백엔드 개발자 (Python/Go),5,9242,3.7,170,서울 판교,Python Spark Airflow Kafka SQL BigQuery,2026-10-13
+JOB-0044,[하이퍼링크] 클라우드 DevOps 아키텍트 채용 (경력 1년 이상),하이퍼링크,인프라,클라우드 DevOps 아키텍트,1,10254,4.4,149,서울 강남구,Python PyTorch LangChain Docker FastAPI AWS,2026-10-13
+JOB-0045,[클라우드나인] AI/ML 엔지니어 채용 (경력 5년 이상),클라우드나인,AI/ML,AI/ML 엔지니어,5,8585,4.8,22,원격근무(하이브리드),Go Kubernetes gRPC Docker Kafka AWS,2026-10-13
+JOB-0046,[넥스트인텔리전스] 데이터 플랫폼 엔지니어 채용 (경력 8년 이상),넥스트인텔리전스,데이터,데이터 플랫폼 엔지니어,8,11250,4.5,161,서울 판교,Python PyTorch Transformers vLLM RAG LangGraph,2026-10-13
+JOB-0047,[네오테크] 데이터 분석가 (EDA/BI) 채용 (경력 5년 이상),네오테크,분석,데이터 분석가 (EDA/BI),5,5848,4.8,39,원격근무(하이브리드),Python Spark Airflow Kafka SQL BigQuery,2026-10-13
+JOB-0048,[데이터웨이브] AI/ML 엔지니어 채용 (경력 3년 이상),데이터웨이브,AI/ML,AI/ML 엔지니어,3,9731,3.9,58,원격근무(하이브리드),SQL Python Tableau Pandas PowerBI Matplotlib,2026-10-13
+JOB-0049,[클라우드나인] 데이터 플랫폼 엔지니어 채용 (경력 9년 이상),클라우드나인,데이터,데이터 플랫폼 엔지니어,9,10802,3.9,18,서울 송파구,Python PyTorch LangChain Docker FastAPI AWS,2026-10-13
+JOB-0050,[큐브랩스] 데이터 분석가 (EDA/BI) 채용 (경력 1년 이상),큐브랩스,분석,데이터 분석가 (EDA/BI),1,5029,4.0,38,서울 송파구,SQL Python Tableau Pandas PowerBI Matplotlib,2026-10-13
+JOB-0051,[알파소프트] 데이터 플랫폼 엔지니어 채용 (경력 9년 이상),알파소프트,데이터,데이터 플랫폼 엔지니어,9,12580,4.1,7,원격근무(전면),Python PyTorch LangChain Docker FastAPI AWS,2026-10-13
+JOB-0052,[알파소프트] AI/ML 엔지니어 채용 (경력 1년 이상),알파소프트,AI/ML,AI/ML 엔지니어,1,10524,4.3,42,원격근무(하이브리드),Terraform AWS Kubernetes CI/CD Linux Prometheus,2026-10-13
+JOB-0053,[네오테크] 백엔드 개발자 (Python/Go) 채용 (경력 6년 이상),네오테크,백엔드,백엔드 개발자 (Python/Go),6,6326,4.8,58,서울 송파구,SQL Python Tableau Pandas PowerBI Matplotlib,2026-10-13
+JOB-0054,[데이터웨이브] 백엔드 개발자 (Python/Go) 채용 (경력 9년 이상),데이터웨이브,백엔드,백엔드 개발자 (Python/Go),9,9329,4.9,44,서울 송파구,Go Kubernetes gRPC Docker Kafka AWS,2026-10-13
+JOB-0055,[알파소프트] LLM 에이전트 연구원 채용 (경력 7년 이상),알파소프트,AI/ML,LLM 에이전트 연구원,7,8203,3.8,90,서울 판교,Python PyTorch Transformers vLLM RAG LangGraph,2026-10-13
+JOB-0056,[클라우드나인] 클라우드 DevOps 아키텍트 채용 (경력 3년 이상),클라우드나인,인프라,클라우드 DevOps 아키텍트,3,12244,3.7,14,서울 송파구,Python PyTorch Transformers vLLM RAG LangGraph,2026-10-13
+JOB-0057,[클라우드나인] 클라우드 DevOps 아키텍트 채용 (경력 8년 이상),클라우드나인,인프라,클라우드 DevOps 아키텍트,8,9364,3.9,63,서울 판교,Go Kubernetes gRPC Docker Kafka AWS,2026-10-13
+JOB-0058,[클라우드나인] AI/ML 엔지니어 채용 (경력 6년 이상),클라우드나인,AI/ML,AI/ML 엔지니어,6,9782,4.7,76,원격근무(전면),Python Spark Airflow Kafka SQL BigQuery,2026-10-13
+JOB-0059,[큐브랩스] 데이터 분석가 (EDA/BI) 채용 (경력 6년 이상),큐브랩스,분석,데이터 분석가 (EDA/BI),6,5226,3.7,71,원격근무(하이브리드),Go Kubernetes gRPC Docker Kafka AWS,2026-10-13
+JOB-0060,[넥스트인텔리전스] 풀스택 웹 엔지니어 채용 (경력 2년 이상),넥스트인텔리전스,웹,풀스택 웹 엔지니어,2,10387,4.1,85,서울 강남구,Terraform AWS Kubernetes CI/CD Linux Prometheus,2026-10-13
+JOB-0061,[데이터웨이브] 풀스택 웹 엔지니어 채용 (경력 10년 이상),데이터웨이브,웹,풀스택 웹 엔지니어,10,7057,3.9,116,원격근무(전면),Python PyTorch LangChain Docker FastAPI AWS,2026-10-13
+JOB-0062,[클라우드나인] 풀스택 웹 엔지니어 채용 (경력 7년 이상),클라우드나인,웹,풀스택 웹 엔지니어,7,6073,4.8,89,서울 송파구,TypeScript React Next.js Node.js Tailwind PostgreSQL,2026-10-13
+JOB-0063,[데이터웨이브] 데이터 플랫폼 엔지니어 채용 (경력 9년 이상),데이터웨이브,데이터,데이터 플랫폼 엔지니어,9,9333,4.4,88,서울 송파구,Terraform AWS Kubernetes CI/CD Linux Prometheus,2026-10-13
+JOB-0064,[넥스트인텔리전스] 데이터 분석가 (EDA/BI) 채용 (경력 3년 이상),넥스트인텔리전스,분석,데이터 분석가 (EDA/BI),3,6571,4.1,102,원격근무(하이브리드),SQL Python Tableau Pandas PowerBI Matplotlib,2026-10-13
+JOB-0065,[알파소프트] 데이터 분석가 (EDA/BI) 채용 (경력 10년 이상),알파소프트,분석,데이터 분석가 (EDA/BI),10,7465,4.1,5,원격근무(하이브리드),Python Spark Airflow Kafka SQL BigQuery,2026-10-13
+JOB-0066,[클라우드나인] 데이터 플랫폼 엔지니어 채용 (경력 10년 이상),클라우드나인,데이터,데이터 플랫폼 엔지니어,10,11769,4.4,124,원격근무(전면),Terraform AWS Kubernetes CI/CD Linux Prometheus,2026-10-13
+JOB-0067,[클라우드나인] 클라우드 DevOps 아키텍트 채용 (경력 8년 이상),클라우드나인,인프라,클라우드 DevOps 아키텍트,8,7890,4.4,77,원격근무(하이브리드),TypeScript React Next.js Node.js Tailwind PostgreSQL,2026-10-13
+JOB-0068,[하이퍼링크] 데이터 분석가 (EDA/BI) 채용 (경력 4년 이상),하이퍼링크,분석,데이터 분석가 (EDA/BI),4,7542,3.8,55,서울 강남구,Go Kubernetes gRPC Docker Kafka AWS,2026-10-13
+JOB-0069,[네오테크] AI/ML 엔지니어 채용 (경력 8년 이상),네오테크,AI/ML,AI/ML 엔지니어,8,12507,4.7,23,서울 판교,Terraform AWS Kubernetes CI/CD Linux Prometheus,2026-10-13
+JOB-0070,[클라우드나인] 클라우드 DevOps 아키텍트 채용 (경력 8년 이상),클라우드나인,인프라,클라우드 DevOps 아키텍트,8,9773,3.8,172,원격근무(전면),SQL Python Tableau Pandas PowerBI Matplotlib,2026-10-13
+JOB-0071,[데이터웨이브] AI/ML 엔지니어 채용 (경력 4년 이상),데이터웨이브,AI/ML,AI/ML 엔지니어,4,8940,4.6,137,원격근무(전면),Terraform AWS Kubernetes CI/CD Linux Prometheus,2026-10-13
+JOB-0072,[클라우드나인] AI/ML 엔지니어 채용 (경력 8년 이상),클라우드나인,AI/ML,AI/ML 엔지니어,8,8592,4.6,175,서울 강남구,TypeScript React Next.js Node.js Tailwind PostgreSQL,2026-10-13
+JOB-0073,[하이퍼링크] 풀스택 웹 엔지니어 채용 (경력 10년 이상),하이퍼링크,웹,풀스택 웹 엔지니어,10,9635,4.1,145,원격근무(전면),Terraform AWS Kubernetes CI/CD Linux Prometheus,2026-10-13
+JOB-0074,[스마트모빌리티] 백엔드 개발자 (Python/Go) 채용 (경력 5년 이상),스마트모빌리티,백엔드,백엔드 개발자 (Python/Go),5,8025,4.7,75,원격근무(전면),Python PyTorch Transformers vLLM RAG LangGraph,2026-10-13
+JOB-0075,[스마트모빌리티] LLM 에이전트 연구원 채용 (경력 5년 이상),스마트모빌리티,AI/ML,LLM 에이전트 연구원,5,11603,3.6,78,서울 판교,Go Kubernetes gRPC Docker Kafka AWS,2026-10-13
+JOB-0076,[하이퍼링크] 데이터 플랫폼 엔지니어 채용 (경력 9년 이상),하이퍼링크,데이터,데이터 플랫폼 엔지니어,9,7460,3.7,64,서울 송파구,Terraform AWS Kubernetes CI/CD Linux Prometheus,2026-10-13
+JOB-0077,[알파소프트] 데이터 분석가 (EDA/BI) 채용 (경력 2년 이상),알파소프트,분석,데이터 분석가 (EDA/BI),2,8398,4.1,143,서울 판교,Terraform AWS Kubernetes CI/CD Linux Prometheus,2026-10-13
+JOB-0078,[네오테크] 클라우드 DevOps 아키텍트 채용 (경력 7년 이상),네오테크,인프라,클라우드 DevOps 아키텍트,7,9690,4.8,154,서울 판교,SQL Python Tableau Pandas PowerBI Matplotlib,2026-10-13
+JOB-0079,[큐브랩스] AI/ML 엔지니어 채용 (경력 1년 이상),큐브랩스,AI/ML,AI/ML 엔지니어,1,10381,3.9,104,원격근무(전면),Python PyTorch Transformers vLLM RAG LangGraph,2026-10-13
+JOB-0080,[큐브랩스] LLM 에이전트 연구원 채용 (경력 12년 이상),큐브랩스,AI/ML,LLM 에이전트 연구원,12,14018,4.3,159,원격근무(하이브리드),Go Kubernetes gRPC Docker Kafka AWS,2026-10-13

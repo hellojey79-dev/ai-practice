@@ -148,3 +148,126 @@ flowchart LR
 - [ ] 시각화 코드에서 Seaborn 전역 스타일이 배제되고 `koreanize-matplotlib`가 사용되었는가?
 - [ ] 생성된 대시보드는 로컬 더블클릭(`file://`) 실행 시에도 CORS 차단 없이 완벽히 동작하는가?
 - [ ] 모든 보고서와 대시보드 라벨은 한국어로 가독성 있게 작성되었는가?
+
+---
+
+## 8. 훅(Hooks) 및 에이전트(Agents) 구축 실전 예시 및 쇼케이스
+
+하네스 프레임워크가 실제로 어떻게 훅과 3대 에이전트를 오케스트레이션하는지 입증하기 위해, **완벽히 독립된 '글로벌 테크 채용 공고(Tech Job Postings)' 쇼케이스**를 구현하였습니다.
+
+### 8.1 훅(Hook) 시스템 구축 명세 및 입출력 프로토콜
+
+에이전트 라이프사이클 훅은 `.agents/hooks.json`에 정의되어 에이전트 추론 루프의 전/후 시점에 자동 개입합니다.
+
+#### 1) 훅 설정 명세 (`.agents/hooks.json`)
+```json
+{
+  "pipeline-quality-guard": {
+    "enabled": true,
+    "PreInvocation": [
+      {
+        "type": "command",
+        "command": "python hooks/hook_runner.py PreInvocation",
+        "timeout": 15
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python hooks/hook_runner.py PostToolUse",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+#### 2) stdin / stdout 데이터 계약 (Data Contract)
+- **PreInvocation 훅**:
+  - `stdin`: `{"conversationId": "...", "invocationNum": 1, ...}`
+  - `stdout`: 표준 파이프라인 가이드라인을 담은 ephemeralMessage 주입
+    ```json
+    {
+      "injectSteps": [
+        {
+          "ephemeralMessage": "[하네스 파이프라인 안내] 1. 워크스페이스 공통 .venv 사용, 2. 4대 폴더 필수 구성, 3. Seaborn 전역 스타일 배제, 4. No-CORS data.js 적용..."
+        }
+      ]
+    }
+    ```
+- **PostToolUse 훅 & 무결성 검증기 (`validate_dataset.py`)**:
+  - 도구 실행 후 데이터 파일 생성 시 자동 호출되어 행 수(50건 이상), 결측률(10% 이하), 중복(0건)을 엄격히 판정하고 실패 시 종료 코드 1로 파이프라인을 즉각 차단합니다.
+
+---
+
+### 8.2 3대 서브에이전트 오케스트레이션 코드 예시
+
+단일 파이프라인 실행기(`harness/src/run_example_pipeline.py`) 내에서 3대 에이전트 클래스가 데이터 계약을 준수하며 순차 협업합니다:
+
+```python
+# 1. 수집 전담 에이전트 실행
+crawler = CrawlerAgent(output_dir=Path("harness/examples/tech_jobs/data"))
+jobs = crawler.scrape_jobs(count=80)
+csv_file, json_file = crawler.save(jobs)
+
+# 2. 품질 게이트 훅 자동 검증 (무결성 검증 실패 시 중단)
+is_valid = trigger_validation_hook(csv_file, min_rows=50, max_null_pct=10.0)
+if not is_valid:
+    sys.exit(1)
+
+# 3. 20년차 시니어 EDA 에이전트 실행 (12종 차트 & 리포트)
+df = pd.read_csv(csv_file)
+analyst = EdaAnalyst(images_dir=Path("harness/examples/tech_jobs/images"),
+                     docs_dir=Path("harness/examples/tech_jobs/docs"))
+stats = analyst.analyze(df)
+tfidf_df = analyst.extract_keywords(df, top_n=15)
+chart_files = analyst.generate_12_charts(df, tfidf_df)
+analyst.write_report(df, stats, tfidf_df, chart_files)
+
+# 4. 웹 대시보드 아키텍트 에이전트 실행 (No-CORS data.js & Bento Grid)
+architect = DashboardArchitect(webapp_dir=Path("harness/examples/tech_jobs/src/webapp"))
+architect.bundle_data(df, stats, tfidf_df)
+architect.scaffold_webapp()
+```
+
+---
+
+### 8.3 독립 쇼케이스 프로젝트 구조 (`harness/examples/tech_jobs/`)
+
+실제 실행된 결과물은 하네스 표준 4대 폴더 구조를 갖추어 독립 보관됩니다:
+
+```text
+harness/examples/tech_jobs/
+├── data/
+│   ├── tech_jobs_20261013.csv          # 80건 수집 데이터 (결측치 0.0%)
+│   └── tech_jobs_20261013.json
+├── docs/
+│   └── EDA_REPORT.md                   # 20년차 시니어 심층 분석 리포트
+├── images/                             # 고해상도 시각화 차트 12종
+│   ├── 01_salary_distribution.png
+│   ├── 02_category_share.png
+│   ├── 03_experience_vs_salary.png
+│   ├── 04_role_avg_salary.png
+│   ├── 05_tech_stack_tfidf.png
+│   └── ... (총 12종 완비)
+└── src/
+    └── webapp/                         # Bento Grid 다크 테마 대시보드
+        ├── index.html                  # Chart.js 반응형 UI
+        ├── styles.css                  # 다크 테마 Bento Grid 스타일
+        ├── dashboard.js                # 인터랙티브 렌더링 & 검색/필터 엔진
+        └── data.js                     # No-CORS 독립 실행용 데이터 번들
+```
+
+#### 💡 쇼케이스 즉시 실행 및 로컬 웹 대시보드 서빙 명령:
+```bash
+# 1. 전체 파이프라인 재실행
+uv run python harness/src/run_example_pipeline.py
+
+# 2. 대시보드 로컬 브라우저 구동
+uv run python harness/src/serve_webapp.py --dir harness/examples/tech_jobs/src/webapp --port 8080
+```

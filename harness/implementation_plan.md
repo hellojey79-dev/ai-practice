@@ -285,10 +285,11 @@ sequenceDiagram
 
 ## 6. 라이프사이클 훅 (Hooks) 및 자동 가드레일
 
-`.agents/hooks.json` 및 `hook_runner.py`를 통해 에이전트의 실행 주기마다 표준 규격을 강제합니다:
+`.agents/hooks.json` 및 `hook_runner.py`를 통해 에이전트의 실행 주기마다 보안 및 표준 규격을 강제합니다:
 
-- **`PreInvocation`**: 파이프라인 시작 전 단일 `.venv` 사용, 4대 폴더 생성, 한글 폰트 및 Seaborn 스타일 금지 수칙을 시스템 메시지로 주입
-- **`PostToolUse`**: 도구 실행 완료 후 파일 생성 상태 및 무결성 검증 프로세스를 자동 점검
+- **`PreInvocation`**: 모델 추론 시작 전 6대 파이프라인 가이드라인(단일 `.venv`, 4대 폴더, 6대 메타 스키마, 한글 폰트, No-CORS, Docstring)을 시스템 메시지로 실시간 주입
+- **`PreToolUse`**: 파괴적 시스템 명령어(`rmdir /s /q`, `rm -rf /`, `git push --force` 등) 감지 시 도구 실행을 즉시 차단(`decision: "deny"`)하는 안전 가드레일 작동
+- **`PostToolUse`**: 도구(`run_command`, `write_to_file`) 완료 후 실행 내역을 감사 로그(`.agents/hooks/hook_audit.log`)에 자동 기록하고 데이터 품질을 사후 감시
 
 ---
 
@@ -312,7 +313,7 @@ sequenceDiagram
 
 에이전트 라이프사이클 훅은 `.agents/hooks.json`에 정의되어 에이전트 추론 루프의 전/후 시점에 자동 개입합니다.
 
-#### 1) 훅 설정 명세 (`.agents/hooks.json`)
+#### 1) 확장된 훅 설정 명세 (`.agents/hooks.json`)
 ```json
 {
   "pipeline-quality-guard": {
@@ -324,9 +325,21 @@ sequenceDiagram
         "timeout": 15
       }
     ],
-    "PostToolUse": [
+    "PreToolUse": [
       {
         "matcher": "run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python hooks/hook_runner.py PreToolUse",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "run_command|write_to_file",
         "hooks": [
           {
             "type": "command",
@@ -343,18 +356,27 @@ sequenceDiagram
 #### 2) stdin / stdout 데이터 계약 (Data Contract)
 - **PreInvocation 훅**:
   - `stdin`: `{"conversationId": "...", "invocationNum": 1, ...}`
-  - `stdout`: 표준 파이프라인 가이드라인을 담은 ephemeralMessage 주입
+  - `stdout`: 6대 표준 가이드라인을 담은 ephemeralMessage 주입
     ```json
     {
       "injectSteps": [
         {
-          "ephemeralMessage": "[하네스 파이프라인 안내] 1. 워크스페이스 공통 .venv 사용, 2. 4대 폴더 필수 구성, 3. Seaborn 전역 스타일 배제, 4. No-CORS data.js 적용..."
+          "ephemeralMessage": "[하네스 파이프라인 실시간 가이드]\n1. 가상환경: 워크스페이스 공통 .venv 사용 (uv run python)\n2. 구조 표준: 신규 사이트/도메인 생성 시 4대 하위 폴더(images, docs, src, data) 필수 구성\n3. 데이터 추상화: 6대 메타 스키마 준수\n4. 시각화 안전: Matplotlib 한글 폰트 적용 및 Seaborn 전역 스타일 충돌 방지\n5. 대시보드 무결성: data.js 전역 객체 임베딩으로 로컬 브라우저 CORS 차단 원천 방지\n6. 품질 보증: 모든 파이썬 파일 상단 한글 Docstring 작성 및 크롤링 후 validate_dataset.py 무결성 검증 필수"
         }
       ]
     }
     ```
-- **PostToolUse 훅 & 무결성 검증기 (`validate_dataset.py`)**:
-  - 도구 실행 후 데이터 파일 생성 시 자동 호출되어 행 수(50건 이상), 결측률(10% 이하), 중복(0건)을 엄격히 판정하고 실패 시 종료 코드 1로 파이프라인을 즉각 차단합니다.
+- **PreToolUse 훅 (안전 가드레일)**:
+  - `stdin`: `{"toolCall": {"name": "run_command", "args": {"CommandLine": "..."}}, ...}`
+  - `stdout`: 위험 명령어 탐지 시 즉시 차단, 안전 명령어 승인
+    ```json
+    {
+      "decision": "deny",
+      "reason": "[하네스 안전 가드레일] 시스템 파괴 또는 위험 명령어가 감지되어 실행이 차단되었습니다."
+    }
+    ```
+- **PostToolUse 훅 & 감사 로깅**:
+  - 도구 실행 완료 후 `.agents/hooks/hook_audit.log`에 실행 기록을 남기고 데이터셋 상태를 모니터링합니다.
 
 ---
 

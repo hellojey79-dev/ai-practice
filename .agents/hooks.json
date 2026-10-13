@@ -8,9 +8,21 @@
         "timeout": 15
       }
     ],
-    "PostToolUse": [
+    "PreToolUse": [
       {
         "matcher": "run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python hooks/hook_runner.py PreToolUse",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "run_command|write_to_file",
         "hooks": [
           {
             "type": "command",

@@ -58,6 +58,9 @@ ai-practice/
 │   │   ├── export_web_template.py # No-CORS data.js 번들러 스크립트
 │   │   ├── serve_webapp.py     # 로컬 정적 HTTP 서버 구동 스크립트
 │   │   └── webapp/             # Bento Grid 다크 대시보드 마크업/CSS/JS 템플릿
+│   ├── examples/               # 🧪 실전 검증 쇼케이스 (비도서 도메인 실증)
+│   │   └── tech_jobs/          # 글로벌 테크 채용 공고 엔드투엔드 파이프라인
+│   ├── implementation_plan.md  # 📋 하네스 범용 프레임워크 종합 마스터 플랜 (1~10장)
 │   └── README.md               # 하네스 퀵스타트 및 사용 안내서
 │
 ├── kyobooks/                   # 📖 교보문고 IT 베스트셀러 프로젝트
@@ -104,7 +107,7 @@ ai-practice/
   - **라이프사이클 훅**: `.agents/hooks.json` 및 `hook_runner.py`를 통한 사전 규칙 주입 및 무결성 보증
   - **하네스 스크립트**: API/HTML 하이브리드 수집기, 무결성 검증기(`validate_dataset.py`), EDA 템플릿, No-CORS 번들러
   - **통합 스킬**: `.agents/skills/universal-data-pipeline/`
-- **상세 가이드**: [harness/README.md](harness/README.md) 및 [harness/docs/pipeline_workflow.md](harness/docs/pipeline_workflow.md)
+- **상세 가이드**: [harness/README.md](harness/README.md), [harness/implementation_plan.md](harness/implementation_plan.md), [테크 채용 실전 쇼케이스](harness/examples/tech_jobs/) 및 [harness/docs/pipeline_workflow.md](harness/docs/pipeline_workflow.md)
 
 ### 2. 교보문고 IT 베스트셀러 심층 분석 & 웹 대시보드 (`kyobooks/`)
 - **데이터 규모**: 2026년 10월 13일 기준 IT/컴퓨터 베스트셀러 **678권 전수 수집** (결측률 0.00% 완전 데이터)

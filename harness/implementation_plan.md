@@ -424,3 +424,107 @@ uv run python harness/src/run_example_pipeline.py
 # 2. 대시보드 로컬 브라우저 구동
 uv run python harness/src/serve_webapp.py --dir harness/examples/tech_jobs/src/webapp --port 8080
 ```
+
+---
+
+## 9. 하네스 프레임워크 5대 핵심 보완 및 고도화 명세 (5 Critical Enhancements)
+
+실전 웹 환경의 복잡성(동적 SPA, 차단 방어, 대용량 데이터, 시계열 추적)을 완벽히 극복하기 위해 하네스 프레임워크에 추가 보완된 5가지 핵심 엔지니어링 명세입니다.
+
+```mermaid
+flowchart TD
+    classDef enh fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#fff;
+    classDef tpl fill:#0f172a,stroke:#38bdf8,stroke-width:1px,color:#cbd5e1;
+
+    E1["<b>[보완 1] 동적 SPA 2단계 수집</b><br/>requests 우선 ➡️ Playwright 폴백"]:::enh
+    E2["<b>[보완 2] 지수 백오프 차단 방어</b><br/>HTTP 429/403 감지 ➡️ Base*2^n + Jitter"]:::enh
+    E3["<b>[보완 3] 증분 수집 & CDC 추적</b><br/>PK 기준 NEW / UPDATED / UNCHANGED 태깅"]:::enh
+    E4["<b>[보완 4] 이상치 정제 & 지능형 대치</b><br/>IQR 1.5배수 플래그 + 중앙값/최빈값 대치"]:::enh
+    E5["<b>[보완 5] 대용량 대시보드 가속화</b><br/>가상 스크롤 + LTTB 다운샘플링 + 디바운싱"]:::enh
+
+    E1 --> E2 --> E3 --> E4 --> E5
+```
+
+---
+
+### 9.1 [보완 1] 동적 렌더링(SPA/JavaScript) 2단계 하이브리드 수집 아키텍처
+
+#### 1) 문제점 및 한계
+- 기존 `requests` + `BeautifulSoup4` 방식은 서버 사이드 렌더링(SSR)에는 강력하나, React/Vue/Next.js 기반의 클라이언트 사이드 렌더링(SPA)이나 무한 스크롤 사이트에서는 빈 HTML(`<div id="root"></div>`)만 반환되어 수집이 실패함.
+
+#### 2) 고도화 솔루션: 2단계 하이브리드 폴백(Fallback) 엔진
+- **1단계 (경량 수집)**: `requests`로 고속 수집 시도.
+- **동적 렌더링 감지 조건**: 응답 HTML 길이가 5KB 미만이거나, 타깃 데이터 선택자가 0건 발견될 때 동적 SPA로 판정.
+- **2단계 (헤드리스 브라우저 폴백)**: `Playwright` 비동기 브라우저를 자동 기동하여 DOM 완전 렌더링 대기(`wait_for_selector`), 자동 무한 스크롤(Scroll down), 렌더링된 HTML 추출.
+
+```python
+# Playwright 하이브리드 폴백 패턴 예시
+async def fetch_dynamic_page(url: str, selector: str) -> str:
+    from playwright.async_api import async_playwright
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=True)
+        page = await browser.new_page()
+        await page.goto(url, wait_until="networkidle")
+        await page.wait_for_selector(selector, timeout=10000)
+        content = await page.content()
+        await browser.close()
+        return content
+```
+
+---
+
+### 9.2 [보완 2] 지수 백오프(Exponential Backoff) 및 차단 회피 메커니즘
+
+#### 1) 문제점 및 한계
+- 대규모 수집 시 서버에서 HTTP 429(Too Many Requests) 또는 403(Forbidden)을 반환할 때 단순 고정 sleep으로는 IP 영구 차단 위험이 존재함.
+
+#### 2) 고도화 솔루션: 완전 지터(Full Jitter) 기반 지수 백오프
+- 실패 시 재시도 딜레이를 `delay = min(max_delay, base_delay * (2 ** attempt) + random.uniform(0, 1))`로 산출.
+- 헤더 로테이션: 10개 이상의 모던 브라우저 User-Agent 및 언어 헤더 자동 순환.
+- `Retry-After` 응답 헤더가 제공될 경우 해당 헤더 시간을 최우선 준수.
+
+---
+
+### 9.3 [보완 3] 타임스탬프 기반 증분 수집(Incremental Sync / CDC) 및 스키마 변동 추적
+
+#### 1) 문제점 및 한계
+- 매일 전체 데이터를 재수집할 경우, 이전 데이터 대비 신규 진입 항목, 가격 인상/인하, 삭제(품절) 항목의 변동 트렌드를 파악하기 어려움.
+
+#### 2) 고도화 솔루션: 타임스탬프 CDC(Change Data Capture) 스냅샷 아키텍처
+- 원천 데이터에 고유 식별자(PK: `item_id` 또는 `url`)를 강제 지정.
+- 이전 스냅샷(`data/history/<prefix>_YYYYMMDD.csv`)과 최신 수집본을 Left/Outer 조인하여 `change_status` 메타데이터 자동 부여:
+  - `NEW`: 이전 수집본에 없던 신규 항목
+  - `UPDATED`: 핵심 수치(가격, 평점, 리뷰수 등)가 변동된 항목 (`price_change_rate` 자동 계산)
+  - `UNCHANGED`: 변동 없는 기존 항목
+  - `DELETED`: 이전에는 존재했으나 최신 수집본에서 사라진 항목
+- 이를 통해 대시보드에 **"오늘의 신규 랭킹 진입"**, **"가격 변동 알림"** 등 시계열 KPI를 직관적으로 제공.
+
+---
+
+### 9.4 [보완 4] 이상치(Outlier) 자동 판정 및 지능형 전처리 고도화
+
+#### 1) 문제점 및 한계
+- 원천 데이터의 극단적 이상치(예: 무료 0원 도서, 100억원짜리 오기재 채용 공고 등)가 평균 및 상관계수를 왜곡하여 비즈니스 분석의 신뢰도를 저하시킴.
+
+#### 2) 고도화 솔루션: 이중 이상치 탐지 및 지능형 대치
+- **IQR 1.5배수 기준 탐지**: $Q1 - 1.5 \times IQR$ 미만 또는 $Q3 + 1.5 \times IQR$ 초과치를 자동 식별하여 `is_outlier` 불리언 컬럼 추가.
+- **Z-score (±3σ) 표준화 탐지**: 정규분포를 따르는 연속형 변수에 대해 99.7% 신뢰구간 밖의 극단값 태깅.
+- **결측치 지능형 대치 (Imputation)**:
+  - 수치형: 이상치 영향이 적은 중앙값(Median) 대치
+  - 범주형: 최빈값(Mode) 또는 '미분류' 카테고리화
+  - 텍스트: 결측치 전용 공백 처리 및 TF-IDF 불용어 사전 동적 확장
+
+---
+
+### 9.5 [보완 5] 대용량 웹 대시보드 클라이언트 렌더링 최적화
+
+#### 1) 문제점 및 한계
+- 데이터셋 규모가 5,000~20,000건 이상으로 늘어나면, 브라우저에서 `data.js`의 DOM 테이블 렌더링 시 브라우저 프리징(Freezing)이 발생하고 Chart.js 캔버스 렌더링 성능이 급격히 저하됨.
+
+#### 2) 고도화 솔루션: 3대 프론트엔드 최적화 기법
+1. **테이블 가상 스크롤(Virtual Windowing)**:
+   - 전체 DOM 노드를 생성하지 않고 화면에 보이는 15~20개 행만 렌더링하는 가상 스크롤러 탑재 (메모리 사용량 90% 절감).
+2. **Chart.js 데이터 다운샘플링 (LTTB 알고리즘)**:
+   - 수만 개의 시계열/산점도 데이터 포인트를 차트 시각적 형태를 왜곡하지 않는 **LTTB(Largest Triangle Three Buckets)** 알고리즘으로 300~500개 버킷으로 다운샘플링하여 60FPS 부드러운 차트 인터랙션 보장.
+3. **검색 및 다차원 필터 디바운싱 (Debounce 300ms)**:
+   - 사용자가 검색창에 타이핑할 때마다 즉시 필터링하지 않고, 입력 완료 후 300ms 지연 타이머를 적용하여 불필요한 연산 낭비 차단.

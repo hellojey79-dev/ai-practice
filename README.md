@@ -28,10 +28,37 @@
 
 ```text
 ai-practice/
-├── .agents/                    # 🤖 전문 AI 에이전트 커스텀 스킬 및 규칙
-│   └── skills/
+├── .agents/                    # 🤖 전문 AI 에이전트 커스텀 스킬, 룰, 서브에이전트, 훅
+│   ├── agents/                 # 3대 전문 서브에이전트 명세
+│   │   ├── crawler-agent.md    # 🕷️ 타깃 사이트 정찰 및 데이터 수집 전문 에이전트
+│   │   ├── eda-analyst.md      # 📊 20년차 시니어 EDA 및 12종 시각화 전문 에이전트
+│   │   └── dashboard-architect.md # 🎨 Bento Grid Chart.js 웹 대시보드 구축 에이전트
+│   ├── hooks/                  # 에이전트 라이프사이클 훅 러너
+│   │   └── hook_runner.py      # PreInvocation/PostToolUse 무결성 보증 훅
+│   ├── hooks.json              # 에이전트 라이프사이클 훅 설정 파일
+│   ├── rules/                  # 에이전트 공통 규칙
+│   │   ├── file-folders.md     # 폴더 생성 원칙 (images, docs, src, data)
+│   │   └── pipeline-standards.md # 범용 데이터 파이프라인 엔지니어링 표준
+│   └── skills/                 # 에이전트 온디맨드 스킬
+│       ├── universal-data-pipeline/ # 🚀 신규 도메인 엔드투엔드 파이프라인 자동화 스킬
 │       ├── py-eda/             # 20년차 시니어 데이터 분석가 EDA 표준 파이프라인 스킬
 │       └── marp-slides/        # Marp 기반 고품질 프레젠테이션 제작 스킬
+│
+├── harness/                    # ⚙️ 범용 웹 크롤링·EDA·대시보드 하네스(Harness) 시스템
+│   ├── data/                   # 하네스 데이터 디렉터리 (표준 구조 준수)
+│   ├── docs/                   # 하네스 아키텍처 및 워크플로우 문서
+│   │   ├── pipeline_plan.md    # 파이프라인 시스템 설계 계획서
+│   │   ├── pipeline_workflow.md# 5단계 실행 매뉴얼 및 17대 체크리스트
+│   │   └── pipeline_standards.md # 표준 파이프라인 엔지니어링 원칙
+│   ├── images/                 # 시각화 이미지 산출물 디렉터리
+│   ├── src/                    # 하네스 핵심 실행 스크립트 및 템플릿
+│   │   ├── scraper_template.py # API 역공학/HTML 하이브리드 수집 템플릿
+│   │   ├── validate_dataset.py # 데이터 무결성 100% 자동 검증 CLI
+│   │   ├── eda_template.py     # 20년차 시니어 EDA & 12종 시각화 템플릿
+│   │   ├── export_web_template.py # No-CORS data.js 번들러 스크립트
+│   │   ├── serve_webapp.py     # 로컬 정적 HTTP 서버 구동 스크립트
+│   │   └── webapp/             # Bento Grid 다크 대시보드 마크업/CSS/JS 템플릿
+│   └── README.md               # 하네스 퀵스타트 및 사용 안내서
 │
 ├── kyobooks/                   # 📖 교보문고 IT 베스트셀러 프로젝트
 │   ├── data/                   # 전수 수집 데이터셋 (CSV, JSON)
@@ -62,7 +89,7 @@ ai-practice/
 │   ├── images/                 # YES24 분석 시각화 이미지 산출물
 │   └── src/                    # YES24 데이터 수집 및 분석 스크립트
 │
-├── .gitignore                  # Git 추적 제외 규칙 (숨김폴더 제외 및 py-eda, marp-slides 예외)
+├── .gitignore                  # Git 추적 제외 규칙 (하네스, 스킬, 룰, 에이전트 예외 허용)
 └── README.md                   # 전체 저장소 통합 안내 문서 (본 파일)
 ```
 
@@ -70,7 +97,16 @@ ai-practice/
 
 ## 🛠️ 서브 프로젝트별 상세 안내
 
-### 1. 교보문고 IT 베스트셀러 심층 분석 & 웹 대시보드 (`kyobooks/`)
+### 1. 범용 데이터 파이프라인 하네스 시스템 (`harness/` & `.agents/`)
+- **개념**: 전혀 다른 신규 사이트/도메인을 대상으로 크롤링부터 무결성 검증, 20년차 시니어 EDA, 마크다운 리포트, Bento Grid 인터랙티브 Chart.js 대시보드 구축 및 배포까지 자율 완수할 수 있는 범용 엔지니어링 프레임워크입니다.
+- **핵심 구성요소**:
+  - **3대 전문 서브에이전트**: `crawler-agent`(수집), `eda-analyst`(분석/시각화), `dashboard-architect`(웹 대시보드)
+  - **라이프사이클 훅**: `.agents/hooks.json` 및 `hook_runner.py`를 통한 사전 규칙 주입 및 무결성 보증
+  - **하네스 스크립트**: API/HTML 하이브리드 수집기, 무결성 검증기(`validate_dataset.py`), EDA 템플릿, No-CORS 번들러
+  - **통합 스킬**: `.agents/skills/universal-data-pipeline/`
+- **상세 가이드**: [harness/README.md](harness/README.md) 및 [harness/docs/pipeline_workflow.md](harness/docs/pipeline_workflow.md)
+
+### 2. 교보문고 IT 베스트셀러 심층 분석 & 웹 대시보드 (`kyobooks/`)
 - **데이터 규모**: 2026년 10월 13일 기준 IT/컴퓨터 베스트셀러 **678권 전수 수집** (결측률 0.00% 완전 데이터)
 - **주요 통계 요약**:
   - **평균 판매가**: 25,854원 (베스트셀러의 49.4%가 2만~3만원대 구간에 밀집)
@@ -81,13 +117,14 @@ ai-practice/
   - **기술 수명 주기**: 최근 3개년(2024~2026) 신간이 전체의 72.57%를 차지
 - **상세 보고서**: [kyobooks/docs/EDA_REPORT.md](kyobooks/docs/EDA_REPORT.md)
 
-### 2. YES24 IT/테크 베스트셀러 분석 & 발표 프레젠테이션 (`yes24/`)
+### 3. YES24 IT/테크 베스트셀러 분석 & 발표 프레젠테이션 (`yes24/`)
 - **분석 보고서**: [yes24/docs/eda_report.md](yes24/docs/eda_report.md) 및 Word 문서([yes24/docs/eda_report.docx](yes24/docs/eda_report.docx))
 - **Marp 발표 슬라이드**: [yes24/docs/eda_slides.html](yes24/docs/eda_slides.html) 및 Markdown([yes24/docs/eda_slides.md](yes24/docs/eda_slides.md))
 - **파워포인트 덱**: [yes24/docs/eda_presentation.pptx](yes24/docs/eda_presentation.pptx)
 - **엑셀 분석 대시보드**: [yes24/docs/yes24_eda_dashboard.xlsx](yes24/docs/yes24_eda_dashboard.xlsx)
 
-### 3. AI 에이전트 엔지니어링 커스텀 스킬 (`.agents/skills/`)
+### 4. AI 에이전트 엔지니어링 커스텀 스킬 (`.agents/skills/`)
+- **`universal-data-pipeline`**: 신규 사이트/도메인 대상 전천후 데이터 파이프라인 자동화 스킬
 - **`py-eda`**: 20년차 시니어 분석가 페르소나 기반 데이터 기본 탐색 5단계, Seaborn 전역 스타일 제한, 한글 폰트 적용, TF-IDF 키워드 추출, 12종 시각화 및 표 동반 표준 가이드
 - **`marp-slides`**: 가독성과 전문성이 검증된 Marp 기반 프레젠테이션 슬라이드 자동 생성 가이드
 

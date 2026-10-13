@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>하네스 범용 데이터 분석 대시보드</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN (v4.4.1) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-[#0b0f19] text-slate-100 min-h-screen pb-16 antialiased selection:bg-sky-500 selection:text-white">
+
+  <!-- 헤더 -->
+  <header class="border-b border-slate-800/80 bg-[#0f172a]/80 backdrop-blur-md sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+            하네스 범용 데이터 분석 대시보드
+            <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Harness Live</span>
+          </h1>
+          <p class="text-xs text-slate-400">범용 파이프라인 기반 자동 생성 인터랙티브 웹 대시보드</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2.5">
+        <button id="btnExportCSV" class="px-3.5 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5 transition">
+          CSV 내보내기
+        </button>
+        <button id="btnResetFilters" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-sky-600/20 hover:bg-sky-600/30 text-sky-300 border border-sky-500/30 flex items-center gap-1.5 transition">
+          필터 초기화
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
+
+    <!-- 글로벌 필터 -->
+    <section class="bento-card p-4 sm:p-5">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+        <div class="md:col-span-6 relative">
+          <label class="block text-xs font-medium text-slate-400 mb-1">실시간 통합 검색</label>
+          <input type="text" id="searchInput" placeholder="키워드 검색..." class="w-full bg-slate-900/80 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-sky-500 transition">
+        </div>
+        <div class="md:col-span-6">
+          <label class="block text-xs font-medium text-slate-400 mb-1">카테고리 / 그룹 필터</label>
+          <select id="filterCategory" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500 transition">
+            <option value="all">전체</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5대 KPI 카드 -->
+    <section class="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+      <div class="bento-card p-4">
+        <span class="text-xs font-semibold text-slate-400 uppercase">총 데이터 건수</span>
+        <div class="text-2xl font-bold font-mono gradient-text-blue mt-1" id="kpiTotal">-</div>
+      </div>
+      <div class="bento-card p-4">
+        <span class="text-xs font-semibold text-slate-400 uppercase">수치 지표 1 (평균)</span>
+        <div class="text-2xl font-bold font-mono gradient-text-emerald mt-1" id="kpiMetric1">-</div>
+      </div>
+      <div class="bento-card p-4">
+        <span class="text-xs font-semibold text-slate-400 uppercase">수치 지표 2 (중앙값)</span>
+        <div class="text-2xl font-bold font-mono gradient-text-amber mt-1" id="kpiMetric2">-</div>
+      </div>
+      <div class="bento-card p-4">
+        <span class="text-xs font-semibold text-slate-400 uppercase">필터 반영 비율</span>
+        <div class="text-2xl font-bold font-mono gradient-text-rose mt-1" id="kpiPct">-</div>
+      </div>
+    </section>
+
+    <!-- 차트 그리드 -->
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div class="bento-card p-5">
+        <h3 class="font-bold text-sm text-slate-100 mb-3">📊 지표 분포 차트</h3>
+        <div class="chart-container">
+          <canvas id="chartMainDist"></canvas>
+        </div>
+      </div>
+      <div class="bento-card p-5">
+        <h3 class="font-bold text-sm text-slate-100 mb-3">🏢 범주별 점유율</h3>
+        <div class="chart-container">
+          <canvas id="chartCategoryShare"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- 데이터 테이블 -->
+    <section class="bento-card p-5 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="font-bold text-base text-white">📋 상세 데이터 탐색기</h3>
+        <span class="text-xs text-slate-400" id="tableCountInfo">-</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs text-slate-300">
+          <thead class="bg-slate-900/80 text-slate-400 border-b border-slate-800" id="tableHead">
+            <!-- 동적 헤더 -->
+          </thead>
+          <tbody id="tableBody" class="divide-y divide-slate-800/60 font-sans">
+            <!-- 동적 바디 -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="data.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>

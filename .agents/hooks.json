@@ -1,0 +1,24 @@
+{
+  "pipeline-quality-guard": {
+    "enabled": true,
+    "PreInvocation": [
+      {
+        "type": "command",
+        "command": "python hooks/hook_runner.py PreInvocation",
+        "timeout": 15
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python hooks/hook_runner.py PostToolUse",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

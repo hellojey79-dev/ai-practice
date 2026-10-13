@@ -71,7 +71,7 @@ desktop.ini
 *.sublime-workspace
 
 # ==========================================
-# 숨김 폴더/파일 기본 무시 및 특정 스킬 예외 허용
+# 숨김 폴더/파일 기본 무시 및 특정 스킬/룰/에이전트 예외 허용
 # ==========================================
 .*
 !.gitignore
@@ -81,4 +81,9 @@ desktop.ini
 .agents/skills/*
 !.agents/skills/py-eda/
 !.agents/skills/marp-slides/
+!.agents/skills/universal-data-pipeline/
+!.agents/rules/
+!.agents/agents/
+!.agents/hooks.json
+!.agents/hooks/
 

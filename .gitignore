@@ -69,3 +69,16 @@ desktop.ini
 .idea/
 *.sublime-project
 *.sublime-workspace
+
+# ==========================================
+# 숨김 폴더/파일 기본 무시 및 특정 스킬 예외 허용
+# ==========================================
+.*
+!.gitignore
+!.agents/
+.agents/*
+!.agents/skills/
+.agents/skills/*
+!.agents/skills/py-eda/
+!.agents/skills/marp-slides/
+

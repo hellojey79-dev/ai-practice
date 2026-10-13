@@ -45,47 +45,27 @@ flowchart LR
 
 ---
 
-## 1. 프레임워크 목표 및 핵심 가치
+## 1. 프레임워크 한눈에 보기 (5-Step Overview)
 
 ```mermaid
-flowchart TD
-    subgraph Trigger["1. 파이프라인 트리거 & 규칙 주입"]
-        U["사용자 요청 (URL & 분석 목표)"] --> ORCH["하네스 오케스트레이터<br/>(Universal Runner)"]
-        HOOK_PRE["PreInvocation 훅<br/>(.agents/hooks/hook_runner.py)"] -.->|공통 표준 규칙 주입| ORCH
-    end
+flowchart LR
+    %% 스타일 정의
+    classDef step1 fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+    classDef step2 fill:#14532d,stroke:#22c55e,stroke-width:2px,color:#f8fafc;
+    classDef step3 fill:#312e81,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
+    classDef step4 fill:#701a75,stroke:#f472b6,stroke-width:2px,color:#f8fafc;
+    classDef step5 fill:#7c2d12,stroke:#fb923c,stroke-width:2px,color:#f8fafc;
+    classDef hook fill:#0f172a,stroke:#94a3b8,stroke-dasharray: 5 5,color:#cbd5e1;
 
-    subgraph Phase1["2. 수집 & 품질 게이트"]
-        ORCH --> CA["🕷️ crawler-agent<br/>(API 역공학 & BeautifulSoup)"]
-        CA --> RAW_DATA["원천 데이터셋 생성<br/>data/<site>_YYYYMMDD.csv"]
-        RAW_DATA --> HOOK_VAL{"무결성 검증 훅<br/>(validate_dataset.py)"}
-        HOOK_VAL -->|검증 실패| FAIL["재수집 / 선택자 보정"]
-        FAIL -.-> CA
-    end
+    %% 훅 가이드 주입
+    HOOK["⚙️ PreInvocation 훅<br/>(단일 .venv / 4대 폴더 강제)"]:::hook -.-> S1
 
-    subgraph Phase2["3. 20년차 시니어 EDA & 리포트"]
-        HOOK_VAL -->|검증 통과| EDA["📊 eda-analyst<br/>(5단계 탐색 & TF-IDF)"]
-        EDA --> CHARTS["12종 고해상도 시각화<br/>images/*.png"]
-        EDA --> REPORT["종합 분석 리포트<br/>docs/EDA_REPORT.md"]
-    end
-
-    subgraph Phase3["4. 웹 대시보드 & No-CORS 번들링"]
-        RAW_DATA & CHARTS --> DA["🎨 dashboard-architect<br/>(Bento Grid 프론트엔드)"]
-        DA --> BUNDLER["No-CORS 번들러<br/>(export_web_template.py)"]
-        BUNDLER --> DATA_JS["전역 데이터 객체<br/>src/webapp/data.js"]
-        DATA_JS --> DASHBOARD["Chart.js 인터랙티브 대시보드<br/>src/webapp/index.html"]
-    end
-
-    subgraph Phase4["5. 검증 & 서빙 배포"]
-        DASHBOARD --> SERVE["로컬 HTTP 서버 서빙<br/>serve_webapp.py (Port 8080)"]
-        DASHBOARD --> DEPLOY["GitHub Pages 배포<br/>gh-pages 브랜치 라이브 URL"]
-    end
-
-    classDef highlight fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#fff;
-    classDef hook fill:#0f291e,stroke:#34d399,stroke-width:2px,color:#fff;
-    classDef gate fill:#31102b,stroke:#f43f5e,stroke-width:2px,color:#fff;
-    class CA,EDA,DA highlight;
-    class HOOK_PRE,HOOK_VAL hook;
-    class FAIL gate;
+    %% 5단계 핵심 파이프라인
+    S1["<b>[Step 1] 수집</b><br/>🕷️ crawler-agent<br/>───────────<br/>• API 역공학 / HTML 파싱<br/>• <b>data/*.csv (UTF-8)</b>"]:::step1
+    --> S2["<b>[Step 2] 검증</b><br/>🛡️ validate_dataset<br/>───────────<br/>• 행 수 50건 이상 검증<br/>• <b>결측률 10% 이하 게이트</b>"]:::step2
+    --> S3["<b>[Step 3] 분석</b><br/>📊 eda-analyst<br/>───────────<br/>• 20년차 시니어 5단계 EDA<br/>• <b>12종 차트 & 리포트</b>"]:::step3
+    --> S4["<b>[Step 4] 시각화</b><br/>🎨 dashboard-architect<br/>───────────<br/>• No-CORS data.js 번들<br/>• <b>Bento Grid 다크 대시보드</b>"]:::step4
+    --> S5["<b>[Step 5] 서빙</b><br/>🚀 배포 & 서빙<br/>───────────<br/>• 로컬 HTTP (포트 8080)<br/>• <b>GitHub Pages 라이브</b>"]:::step5
 ```
 
 1. **도메인 무관성 (Domain Agnostic)**: 구조화된 텍스트, 수치, 범주형 데이터를 가진 모든 웹 환경에 즉시 적용 가능
@@ -137,6 +117,42 @@ flowchart TD
 ---
 
 ## 4. 3대 전문 서브에이전트 역할 명세
+
+```mermaid
+flowchart LR
+    classDef agent1 fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+    classDef agent2 fill:#312e81,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
+    classDef agent3 fill:#701a75,stroke:#f472b6,stroke-width:2px,color:#f8fafc;
+
+    subgraph A1["🕷️ crawler-agent (수집 전담)"]
+        direction TB
+        A1_IN["📥 입력: 타깃 사이트 URL & 항목"]
+        A1_DO["⚙️ 실행: API 역공학 & 딜레이 제어"]
+        A1_OUT["📤 산출: data/*.csv & *.json"]
+        A1_IN --> A1_DO --> A1_OUT
+    end
+    style A1 fill:#0f172a,stroke:#38bdf8,stroke-width:2px,color:#fff
+
+    subgraph A2["📊 eda-analyst (분석 전담)"]
+        direction TB
+        A2_IN["📥 입력: 정제 데이터셋 (CSV)"]
+        A2_DO["⚙️ 실행: 5단계 탐색 & 12종 시각화"]
+        A2_OUT["📤 산출: images/*.png & EDA_REPORT.md"]
+        A2_IN --> A2_DO --> A2_OUT
+    end
+    style A2 fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#fff
+
+    subgraph A3["🎨 dashboard-architect (대시보드 전담)"]
+        direction TB
+        A3_IN["📥 입력: 통계 지표 & 차트"]
+        A3_DO["⚙️ 실행: No-CORS 번들링 & Bento Grid"]
+        A3_OUT["📤 산출: src/webapp/ (Chart.js 대시보드)"]
+        A3_IN --> A3_DO --> A3_OUT
+    end
+    style A3 fill:#3b0764,stroke:#f472b6,stroke-width:2px,color:#fff
+
+    A1 ==>|무결성 검증 훅 통과| A2 ==>|지표 & 차트 번들링| A3
+```
 
 신규 도메인 수집·분석 시 각 에이전트는 독립된 전문 책임을 수행합니다:
 

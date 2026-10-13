@@ -6,21 +6,90 @@
 > **도메인 격리 원칙 (Domain Isolation Principle)**
 > 본 하네스(`harness/`) 프레임워크는 순수한 **범용 추상화 프레임워크 및 실행 엔진**입니다. 교보문고(`kyobooks/`)나 YES24(`yes24/`)와 같은 개별 사이트 분석 산출물, 고유 데이터셋, 분석 리포트 및 아티팩트는 각 프로젝트 디렉터리에 완전히 격리 보관되며, 하네스 코어 내부에는 특정 도메인 종속적 코드나 데이터가 일절 포함되지 않습니다.
 
+```mermaid
+flowchart LR
+    subgraph Root["워크스페이스 루트 (ai-practice)"]
+        direction TB
+        VENV[".venv/ (단일 공통 가상환경)"]
+        AGENTS[".agents/ (규칙, 훅, 3대 에이전트, 스킬)"]
+    end
+
+    subgraph Core["⚙️ 하네스 코어 엔진 (harness/)"]
+        direction TB
+        TEMPLATES["src/ (범용 템플릿 5종 & validate_dataset.py)"]
+        WEB_TPL["src/webapp/ (Bento Grid 템플릿)"]
+        DOCS_TPL["docs/ (파이프라인 표준 및 실행 워크플로우)"]
+    end
+
+    subgraph Projects["📦 독립 프로젝트 저장소 (완전 격리)"]
+        direction TB
+        subgraph P1["📖 kyobooks/ (교보문고 IT 도서)"]
+            P1_D["data/ | images/ | docs/ | src/webapp/"]
+        end
+        subgraph P2["📗 yes24/ (YES24 IT 도서)"]
+            P2_D["data/ | images/ | docs/ | src/"]
+        end
+        subgraph P3["💼 harness/examples/tech_jobs/ (채용 쇼케이스)"]
+            P3_D["data/ | images/ | docs/ | src/webapp/"]
+        end
+    end
+
+    Root --> Core
+    Core -.->|템플릿 제공 & 무결성 검증| Projects
+
+    classDef core fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#fff;
+    classDef proj fill:#0f172a,stroke:#38bdf8,stroke-width:1px,color:#fff;
+    class Core core;
+    class P1,P2,P3 proj;
+```
+
 ---
 
 ## 1. 프레임워크 목표 및 핵심 가치
 
 ```mermaid
-flowchart LR
-    A["임의의 타깃 웹사이트<br/>(URL & 수집 목적)"] --> B["범용 하네스 엔진<br/>(harness/)"]
-    B --> C["데이터 무결성 검증<br/>(Quality Gate)"]
-    C --> D["20년차 시니어 EDA<br/>(12종 고해상도 차트)"]
-    D --> E["Bento Grid 웹 대시보드<br/>(No-CORS Chart.js)"]
-    E --> F["운영 배포<br/>(GitHub Pages / 로컬)"]
+flowchart TD
+    subgraph Trigger["1. 파이프라인 트리거 & 규칙 주입"]
+        U["사용자 요청 (URL & 분석 목표)"] --> ORCH["하네스 오케스트레이터<br/>(Universal Runner)"]
+        HOOK_PRE["PreInvocation 훅<br/>(.agents/hooks/hook_runner.py)"] -.->|공통 표준 규칙 주입| ORCH
+    end
+
+    subgraph Phase1["2. 수집 & 품질 게이트"]
+        ORCH --> CA["🕷️ crawler-agent<br/>(API 역공학 & BeautifulSoup)"]
+        CA --> RAW_DATA["원천 데이터셋 생성<br/>data/<site>_YYYYMMDD.csv"]
+        RAW_DATA --> HOOK_VAL{"무결성 검증 훅<br/>(validate_dataset.py)"}
+        HOOK_VAL -->|검증 실패| FAIL["재수집 / 선택자 보정"]
+        FAIL -.-> CA
+    end
+
+    subgraph Phase2["3. 20년차 시니어 EDA & 리포트"]
+        HOOK_VAL -->|검증 통과| EDA["📊 eda-analyst<br/>(5단계 탐색 & TF-IDF)"]
+        EDA --> CHARTS["12종 고해상도 시각화<br/>images/*.png"]
+        EDA --> REPORT["종합 분석 리포트<br/>docs/EDA_REPORT.md"]
+    end
+
+    subgraph Phase3["4. 웹 대시보드 & No-CORS 번들링"]
+        RAW_DATA & CHARTS --> DA["🎨 dashboard-architect<br/>(Bento Grid 프론트엔드)"]
+        DA --> BUNDLER["No-CORS 번들러<br/>(export_web_template.py)"]
+        BUNDLER --> DATA_JS["전역 데이터 객체<br/>src/webapp/data.js"]
+        DATA_JS --> DASHBOARD["Chart.js 인터랙티브 대시보드<br/>src/webapp/index.html"]
+    end
+
+    subgraph Phase4["5. 검증 & 서빙 배포"]
+        DASHBOARD --> SERVE["로컬 HTTP 서버 서빙<br/>serve_webapp.py (Port 8080)"]
+        DASHBOARD --> DEPLOY["GitHub Pages 배포<br/>gh-pages 브랜치 라이브 URL"]
+    end
+
+    classDef highlight fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#fff;
+    classDef hook fill:#0f291e,stroke:#34d399,stroke-width:2px,color:#fff;
+    classDef gate fill:#31102b,stroke:#f43f5e,stroke-width:2px,color:#fff;
+    class CA,EDA,DA highlight;
+    class HOOK_PRE,HOOK_VAL hook;
+    class FAIL gate;
 ```
 
 1. **도메인 무관성 (Domain Agnostic)**: 구조화된 텍스트, 수치, 범주형 데이터를 가진 모든 웹 환경에 즉시 적용 가능
-2. **자율적 오케스트레이션**: 3대 전문 서브에이전트가 각자의 전문 영역을 분담하여 인간 개입 최소화
+2. **자율적 오케스트레이션**: 3대 전문 서브에이전트(`crawler-agent`, `eda-analyst`, `dashboard-architect`)가 각자의 전문 영역을 분담하여 인간 개입 최소화
 3. **엄격한 품질 보증**: 단계별 검증 게이트(Validation Hook)를 통해 결측률, 무결성, 통계 신뢰도 보장
 4. **배포 및 호환성 극대화**: No-CORS 데이터 임베딩 아키텍처로 로컬 브라우저 직접 실행(`file://`) 및 정적 웹 호스팅(GitHub Pages) 100% 호환
 
@@ -89,6 +158,74 @@ flowchart LR
 ---
 
 ## 5. 5단계 표준 실행 파이프라인 명세
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as 사용자 (User)
+    participant Orch as 하네스 러너 (Orchestrator)
+    participant Hook as 훅 러너 (.agents/hooks)
+    participant Crawler as crawler-agent
+    participant Val as validate_dataset.py
+    participant EDA as eda-analyst
+    participant Dash as dashboard-architect
+    participant Server as serve_webapp.py
+
+    User->>Orch: 신규 타깃 사이트 수집 및 분석 요청
+    activate Orch
+    Orch->>Hook: PreInvocation 라이프사이클 훅 호출
+    Hook-->>Orch: 공통 표준(4대 폴더, uv .venv, 한글 폰트, No-CORS) 가이드 주입
+
+    rect rgb(20, 30, 50)
+        note right of Crawler: [Step 1] 타깃 정찰 및 수집
+        Orch->>Crawler: scrape(url, max_items)
+        activate Crawler
+        Crawler->>Crawler: API 역공학 / HTML 파싱 & 딜레이 제어
+        Crawler-->>Orch: CSV & JSON 이중 저장 완료
+        deactivate Crawler
+    end
+
+    rect rgb(30, 45, 30)
+        note over Orch,Val: [Step 2] 품질 게이트 무결성 검증
+        Orch->>Val: 데이터 무결성 검증 훅 실행
+        activate Val
+        Val->>Val: 행 수, 중복 0건, 결측률(10% 미만) 검증
+        alt 검증 통과 (Code 0)
+            Val-->>Orch: 무결성 승인 (진행 허가)
+        else 검증 실패 (Code 1)
+            Val-->>Orch: 품질 미달 에러 발생
+            Orch-->>User: 파이프라인 차단 및 크롤러 보정 요구
+        end
+        deactivate Val
+    end
+
+    rect rgb(40, 30, 45)
+        note right of EDA: [Step 3] 20년차 시니어 EDA & 리포트
+        Orch->>EDA: 5단계 기본 탐색 및 12종 시각화 지시
+        activate EDA
+        EDA->>EDA: 기술통계 계산, TF-IDF 텍스트 분석
+        EDA->>EDA: 12종 고해상도 차트 생성 (images/)
+        EDA-->>Orch: 종합 분석 리포트 발행 (docs/EDA_REPORT.md)
+        deactivate EDA
+    end
+
+    rect rgb(25, 40, 55)
+        note right of Dash: [Step 4] Bento Grid 대시보드 구축
+        Orch->>Dash: No-CORS 번들링 및 UI 구축 지시
+        activate Dash
+        Dash->>Dash: export_web_template.py -> data.js 생성
+        Dash->>Dash: Bento Grid 반응형 마크업 스캐폴딩
+        Dash-->>Orch: 대시보드 웹앱 완결 (src/webapp/)
+        deactivate Dash
+    end
+
+    rect rgb(35, 35, 40)
+        note over Orch,Server: [Step 5] 검증 및 로컬/웹 서빙
+        Orch->>Server: 로컬 정적 HTTP 서버 구동 (포트 8080)
+        Server-->>User: 브라우저 자동 실행 및 대시보드 표출
+    end
+    deactivate Orch
+```
 
 ### [Step 1] 정찰 및 하이브리드 수집 (Reconnaissance & Scraping)
 1. 타깃 사이트의 개발자 도구 네트워크 탭을 모방하여 내부 REST/GraphQL API 유무를 우선 탐색

@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ko" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>교보문고 IT/컴퓨터 베스트셀러 심층 분석 대시보드</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN (v4.4.1) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- 커스텀 스타일시트 -->
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-[#0b0f19] text-slate-100 min-h-screen pb-16 antialiased selection:bg-sky-500 selection:text-white">
+
+  <!-- ============================================================ -->
+  <!-- 1. 메인 헤더 & 네비게이션 -->
+  <!-- ============================================================ -->
+  <header class="border-b border-slate-800/80 bg-[#0f172a]/80 backdrop-blur-md sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+              교보문고 IT/컴퓨터 베스트셀러 심층 분석
+            </h1>
+            <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+              Live EDA 2026
+            </span>
+          </div>
+          <p class="text-xs text-slate-400 mt-0.5">
+            전수 수집 678권 데이터 기반 Chart.js 인터랙티브 분석 플랫폼 (20년차 시니어 데이터 분석가)
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2.5">
+        <button id="btnExportCSV" class="px-3.5 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5 transition">
+          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          CSV 내보내기
+        </button>
+        <button id="btnResetFilters" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-sky-600/20 hover:bg-sky-600/30 text-sky-300 border border-sky-500/30 flex items-center gap-1.5 transition">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          필터 초기화
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
+
+    <!-- ============================================================ -->
+    <!-- 2. 다차원 글로벌 필터 바 (Bento Card 형태) -->
+    <!-- ============================================================ -->
+    <section class="bento-card p-4 sm:p-5">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+        
+        <!-- 실시간 도서/저자 검색창 -->
+        <div class="md:col-span-4 relative">
+          <label class="block text-xs font-medium text-slate-400 mb-1">도서명 / 저자 검색</label>
+          <div class="relative">
+            <input type="text" id="searchInput" placeholder="예: 클로드, 파이썬, 길벗..."
+                   class="w-full bg-slate-900/80 border border-slate-700 rounded-lg px-3.5 py-2 pl-9 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-sky-500 transition">
+            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- 출판사 선택 드롭다운 -->
+        <div class="md:col-span-3">
+          <label class="block text-xs font-medium text-slate-400 mb-1">출판사 선택</label>
+          <select id="filterPublisher" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500 transition">
+            <option value="all">전체 출판사</option>
+          </select>
+        </div>
+
+        <!-- 가격대 칩 필터 -->
+        <div class="md:col-span-5">
+          <label class="block text-xs font-medium text-slate-400 mb-1">가격대 구간</label>
+          <div class="flex flex-wrap gap-1.5">
+            <button class="filter-chip chip-price px-2.5 py-1 rounded-md text-xs font-medium border border-slate-700 bg-slate-800 text-slate-300 active" data-tier="all">전체</button>
+            <button class="filter-chip chip-price px-2.5 py-1 rounded-md text-xs font-medium border border-slate-700 bg-slate-800 text-slate-300" data-tier="2만원 이하">2만원 이하</button>
+            <button class="filter-chip chip-price px-2.5 py-1 rounded-md text-xs font-medium border border-slate-700 bg-slate-800 text-slate-300" data-tier="2만~3만원">2만~3만원</button>
+            <button class="filter-chip chip-price px-2.5 py-1 rounded-md text-xs font-medium border border-slate-700 bg-slate-800 text-slate-300" data-tier="3만~4만원">3만~4만원</button>
+            <button class="filter-chip chip-price px-2.5 py-1 rounded-md text-xs font-medium border border-slate-700 bg-slate-800 text-slate-300" data-tier="4만원 초과">4만원 초과</button>
+          </div>
+        </div>
+
+        <!-- 할인율 & 출간연도 보조 필터 -->
+        <div class="md:col-span-12 pt-2 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div class="flex items-center gap-2">
+            <span class="text-slate-400 font-medium">할인 정책:</span>
+            <div class="flex gap-1.5">
+              <button class="filter-chip chip-discount px-2.5 py-1 rounded text-xs border border-slate-700 bg-slate-800 text-slate-300 active" data-discount="all">전체</button>
+              <button class="filter-chip chip-discount px-2.5 py-1 rounded text-xs border border-slate-700 bg-slate-800 text-slate-300" data-discount="10">10% 할인 (단행본)</button>
+              <button class="filter-chip chip-discount px-2.5 py-1 rounded text-xs border border-slate-700 bg-slate-800 text-slate-300" data-discount="0">0% 무할인 (교재/공식)</button>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <span class="text-slate-400 font-medium">출간 시기:</span>
+            <div class="flex gap-1.5">
+              <button class="filter-chip chip-year px-2.5 py-1 rounded text-xs border border-slate-700 bg-slate-800 text-slate-300 active" data-year="all">전체</button>
+              <button class="filter-chip chip-year px-2.5 py-1 rounded text-xs border border-slate-700 bg-slate-800 text-slate-300" data-year="2026">2026년 당해 신간</button>
+              <button class="filter-chip chip-year px-2.5 py-1 rounded text-xs border border-slate-700 bg-slate-800 text-slate-300" data-year="2025">2025년</button>
+              <button class="filter-chip chip-year px-2.5 py-1 rounded text-xs border border-slate-700 bg-slate-800 text-slate-300" data-year="2024_earlier">2024년 이전</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- 3. 핵심 KPI 카드 5종 (Bento Grid) -->
+    <!-- ============================================================ -->
+    <section class="grid grid-cols-2 lg:grid-cols-5 gap-3.5">
+      
+      <!-- KPI 1: 총 도서 수 -->
+      <div class="bento-card p-4">
+        <div class="flex items-center justify-between text-slate-400 mb-2">
+          <span class="text-xs font-semibold tracking-wider uppercase">분석 도서 규모</span>
+          <span class="p-1.5 rounded-lg bg-sky-500/10 text-sky-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+          </span>
+        </div>
+        <div class="text-2xl font-bold font-mono gradient-text-blue" id="kpiTotalBooks">-</div>
+        <p class="text-xs text-slate-400 mt-1" id="kpiTotalSub">-</p>
+      </div>
+
+      <!-- KPI 2: 평균 판매가 -->
+      <div class="bento-card p-4">
+        <div class="flex items-center justify-between text-slate-400 mb-2">
+          <span class="text-xs font-semibold tracking-wider uppercase">평균 판매가</span>
+          <span class="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </span>
+        </div>
+        <div class="text-2xl font-bold font-mono gradient-text-emerald" id="kpiAvgPrice">-</div>
+        <p class="text-xs text-slate-400 mt-1" id="kpiPriceSub">-</p>
+      </div>
+
+      <!-- KPI 3: 독자 평균 평점 -->
+      <div class="bento-card p-4">
+        <div class="flex items-center justify-between text-slate-400 mb-2">
+          <span class="text-xs font-semibold tracking-wider uppercase">독자 평균 평점</span>
+          <span class="p-1.5 rounded-lg bg-amber-500/10 text-amber-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+          </span>
+        </div>
+        <div class="text-2xl font-bold font-mono gradient-text-amber" id="kpiAvgRating">-</div>
+        <p class="text-xs text-slate-400 mt-1" id="kpiRatingSub">-</p>
+      </div>
+
+      <!-- KPI 4: 평균 리뷰 수 -->
+      <div class="bento-card p-4">
+        <div class="flex items-center justify-between text-slate-400 mb-2">
+          <span class="text-xs font-semibold tracking-wider uppercase">평균 리뷰 수</span>
+          <span class="p-1.5 rounded-lg bg-rose-500/10 text-rose-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/></svg>
+          </span>
+        </div>
+        <div class="text-2xl font-bold font-mono gradient-text-rose" id="kpiAvgReviews">-</div>
+        <p class="text-xs text-slate-400 mt-1" id="kpiReviewSub">-</p>
+      </div>
+
+      <!-- KPI 5: 2026년 신간 점유율 -->
+      <div class="bento-card p-4 col-span-2 lg:col-span-1">
+        <div class="flex items-center justify-between text-slate-400 mb-2">
+          <span class="text-xs font-semibold tracking-wider uppercase">2026 신간 점유율</span>
+          <span class="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </span>
+        </div>
+        <div class="text-2xl font-bold font-mono text-indigo-400" id="kpiNewRate">-</div>
+        <p class="text-xs text-slate-400 mt-1" id="kpiNewSub">-</p>
+      </div>
+
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- 4. Chart.js 인터랙티브 차트 그리드 (7종 Bento Layout) -->
+    <!-- ============================================================ -->
+    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-5">
+      
+      <!-- Chart 1: 도서 가격대 분포 (5천원 단위 Bar) -->
+      <div class="bento-card p-5 lg:col-span-6 flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h3 class="font-bold text-sm text-slate-100 flex items-center gap-1.5">
+              <span>📊 판매가 구간별 도서 수 분포</span>
+            </h3>
+            <p class="text-xs text-slate-400">5천원 단위 빈도 히스토그램 (2만~3만원대 집중도)</p>
+          </div>
+          <span class="text-xs px-2 py-0.5 rounded bg-sky-500/10 text-sky-400 border border-sky-500/20 font-mono">Bar</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="chartPriceDist"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 2: 상위 출판사 베스트 점유율 (Horizontal Bar) -->
+      <div class="bento-card p-5 lg:col-span-6 flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h3 class="font-bold text-sm text-slate-100 flex items-center gap-1.5">
+              <span>🏢 상위 출판사별 베스트셀러 진입 수</span>
+            </h3>
+            <p class="text-xs text-slate-400">한빛미디어, 길벗 등 시장 과점 구조 분석</p>
+          </div>
+          <span class="text-xs px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-mono">Horizontal Bar</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="chartPublishers"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 3: 할인율 정책 분포 (Doughnut) -->
+      <div class="bento-card p-5 lg:col-span-4 flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h3 class="font-bold text-sm text-slate-100 flex items-center gap-1.5">
+              <span>🏷️ 할인율 정책 분포</span>
+            </h3>
+            <p class="text-xs text-slate-400">10% 정률할인 vs 0% 무할인(교재/수험서)</p>
+          </div>
+          <span class="text-xs px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">Doughnut</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="chartDiscount"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 4: 출간 연도별 신간 추이 (Line/Area) -->
+      <div class="bento-card p-5 lg:col-span-8 flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h3 class="font-bold text-sm text-slate-100 flex items-center gap-1.5">
+              <span>📅 출간 연도별 신간 점유 추이 (2020~2026)</span>
+            </h3>
+            <p class="text-xs text-slate-400">기술 진부화와 가파른 수명 주기(Tech Shelf-life) 규명</p>
+          </div>
+          <span class="text-xs px-2 py-0.5 rounded bg-orange-500/10 text-orange-400 border border-orange-500/20 font-mono">Line & Area</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="chartYearTrend"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 5: 판매가 vs 평점 산점도 (Scatter/Bubble) -->
+      <div class="bento-card p-5 lg:col-span-7 flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h3 class="font-bold text-sm text-slate-100 flex items-center gap-1.5">
+              <span>🎯 도서 판매가 vs 독자 평점 상관관계</span>
+            </h3>
+            <p class="text-xs text-slate-400">버블 크기: 독자 리뷰 수 (무상관 실증 및 리뷰 밀도)</p>
+          </div>
+          <span class="text-xs px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20 font-mono">Scatter/Bubble</span>
+        </div>
+        <div class="chart-container-lg">
+          <canvas id="chartScatter"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 6: 순위 Tier별 평균 판매가 및 리뷰 (Grouped Bar) -->
+      <div class="bento-card p-5 lg:col-span-5 flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h3 class="font-bold text-sm text-slate-100 flex items-center gap-1.5">
+              <span>🏆 순위 Tier별 가격 & 리뷰 특성</span>
+            </h3>
+            <p class="text-xs text-slate-400">1~50위 최상위권의 압도적 리뷰 우위(47개 vs 12개)</p>
+          </div>
+          <span class="text-xs px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-mono">Dual Axis</span>
+        </div>
+        <div class="chart-container-lg">
+          <canvas id="chartTier"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 7: 책 소개 TF-IDF 핵심 키워드 Top 12 (Horizontal Bar) -->
+      <div class="bento-card p-5 lg:col-span-12 flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h3 class="font-bold text-sm text-slate-100 flex items-center gap-1.5">
+              <span>💡 책 소개 텍스트 TF-IDF 상위 핵심 기술 키워드 (Top 12)</span>
+            </h3>
+            <p class="text-xs text-slate-400">'ai', '데이터', '실전', '실무', '업무' 등 시장 수요 키워드 가중치 분석</p>
+          </div>
+          <span class="text-xs px-2 py-0.5 rounded bg-teal-500/10 text-teal-400 border border-teal-500/20 font-mono">TF-IDF Bar</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="chartKeywords"></canvas>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- 5. 인터랙티브 데이터 테이블 섹션 -->
+    <!-- ============================================================ -->
+    <section class="bento-card p-5 space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-800 pb-4">
+        <div>
+          <h3 class="font-bold text-base text-white flex items-center gap-2">
+            <span>📚 베스트셀러 도서 목록 탐색기</span>
+          </h3>
+          <p class="text-xs text-slate-400 mt-0.5" id="tableCountInfo">
+            총 678건 중 1 ~ 15건 표시
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <label class="text-xs text-slate-400">페이지당 보기:</label>
+          <select id="pageSizeSelect" class="bg-slate-900 border border-slate-700 rounded px-2.5 py-1 text-xs text-slate-200 focus:outline-none focus:border-sky-500">
+            <option value="10">10개</option>
+            <option value="15" selected>15개</option>
+            <option value="25">25개</option>
+            <option value="50">50개</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 테이블 본체 -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs text-slate-300">
+          <thead class="text-xs uppercase bg-slate-900/80 text-slate-400 border-b border-slate-800 select-none">
+            <tr>
+              <th scope="col" class="py-3 px-3 text-center cursor-pointer hover:text-sky-400" data-sort="rank">
+                순위 ↕
+              </th>
+              <th scope="col" class="py-3 px-3 cursor-pointer hover:text-sky-400" data-sort="title">
+                도서 표제 ↕
+              </th>
+              <th scope="col" class="py-3 px-3 cursor-pointer hover:text-sky-400" data-sort="author">
+                저자 / 역자 ↕
+              </th>
+              <th scope="col" class="py-3 px-3 cursor-pointer hover:text-sky-400" data-sort="publisher">
+                출판사 ↕
+              </th>
+              <th scope="col" class="py-3 px-3 text-right cursor-pointer hover:text-sky-400" data-sort="sale_price">
+                판매가 ↕
+              </th>
+              <th scope="col" class="py-3 px-3 text-center cursor-pointer hover:text-sky-400" data-sort="rating">
+                평점 ↕
+              </th>
+              <th scope="col" class="py-3 px-3 text-right cursor-pointer hover:text-sky-400" data-sort="review_count">
+                리뷰수 ↕
+              </th>
+              <th scope="col" class="py-3 px-3 text-center">
+                교보 링크
+              </th>
+            </tr>
+          </thead>
+          <tbody id="booksTableBody" class="divide-y divide-slate-800/60 font-sans">
+            <!-- 자바스크립트로 동적 삽입 -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 테이블 페이지네이션 컨트롤 -->
+      <div class="flex items-center justify-between pt-2">
+        <button id="btnPrevPage" class="px-3 py-1.5 rounded text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition">
+          이전 페이지
+        </button>
+        <button id="btnNextPage" class="px-3 py-1.5 rounded text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition">
+          다음 페이지
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 데이터 번들 및 대시보드 로직 로드 -->
+  <script src="data.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>

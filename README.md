@@ -92,6 +92,20 @@ ai-practice/
 │   ├── images/                 # YES24 분석 시각화 이미지 산출물
 │   └── src/                    # YES24 데이터 수집 및 분석 스크립트
 │
+├── student-materials/          # 🎓 [교육생 배포용 패키지] 초보자 친화적 엔드투엔드 실습 키트
+│   ├── README.md               # 교육생 패키지 시작 안내서
+│   ├── requirements.txt        # 실습 필수 패키지 목록
+│   ├── data/                   # 실습용 샘플 데이터 (상위 100권 CSV/JSON)
+│   ├── docs/                   # 단계별 실습 가이드 & 데이터 스키마 명세
+│   │   ├── HANDS_ON_GUIDE.md   # 환경설정부터 대시보드까지 4단계 실습 매뉴얼
+│   │   └── DATA_SCHEMA.md      # 15개 필드 정의 및 범용 6대 메타 스키마
+│   ├── images/                 # 12종 시각화 차트 결과물
+│   └── src/                    # 순차 실습용 파이썬 스크립트
+│       ├── 01_scraper.py       # [Step 1] REST API 기반 도서 수집
+│       ├── 02_clean_and_eda.py # [Step 2] 정제 & 5단계 EDA (TF-IDF 포함)
+│       ├── 03_visualization.py # [Step 3] 12종 고해상도 시각화 생성
+│       └── 04_dashboard.py     # [Step 4] Streamlit 인터랙티브 대시보드
+│
 ├── .gitignore                  # Git 추적 제외 규칙 (하네스, 스킬, 룰, 에이전트 예외 허용)
 └── README.md                   # 전체 저장소 통합 안내 문서 (본 파일)
 ```

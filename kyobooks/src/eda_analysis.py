@@ -7,6 +7,7 @@
 
 from __future__ import annotations
 
+import argparse
 from pathlib import Path
 import re
 import sys
@@ -25,8 +26,19 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 # 프로젝트 상대경로 설정
 BASE_DIR = Path(__file__).resolve().parent.parent  # kyobooks 디렉터리
-DATA_PATH = BASE_DIR / "data" / "kyobo_it_bestsellers_20261012.csv"
 IMAGES_DIR = BASE_DIR / "images"
+
+
+def get_latest_data_path() -> Path:
+    """kyobooks/data 디렉터리에서 가장 최근의 베스트셀러 CSV 파일을 찾습니다."""
+    data_dir = BASE_DIR / "data"
+    csv_files = sorted(data_dir.glob("kyobo_it_bestsellers_*.csv"), reverse=True)
+    if csv_files:
+        return csv_files[0]
+    return data_dir / "kyobo_it_bestsellers_20261012.csv"
+
+
+DATA_PATH = get_latest_data_path()
 
 
 def run_basic_exploration(df: pd.DataFrame) -> dict[str, str]:
@@ -348,7 +360,8 @@ def generate_visualizations(df: pd.DataFrame) -> None:
     # 차트 12: [다변량] 순위 구간(Tier)별 가격 및 평점 특성 비교 (박스플롯)
     # -------------------------------------------------------------
     df_tier = df.copy()
-    bins = [0, 50, 100, 200, 500]
+    max_rank = max(500, int(df["rank"].max()))
+    bins = [0, 50, 100, 200, max_rank]
     labels = ["1~50위 (최상위)", "51~100위 (상위)", "101~200위 (중위)", "201위 이상 (하위)"]
     df_tier["rank_tier"] = pd.cut(df_tier["rank"], bins=bins, labels=labels)
 
@@ -385,7 +398,7 @@ def compute_all_tables(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
     tables: dict[str, pd.DataFrame] = {}
 
     # 표 1: 가격 구간별 도서 수 및 통계
-    df["price_bin"] = pd.cut(df["sale_price"], bins=[0, 20000, 30000, 40000, 100000],
+    df["price_bin"] = pd.cut(df["sale_price"], bins=[0, 20000, 30000, 40000, float("inf")],
                              labels=["2만원 이하", "2만~3만원", "3만~4만원", "4만원 초과"])
     tables["price_bin"] = df.groupby("price_bin", observed=False).agg(
         도서수=("rank", "count"),
@@ -443,7 +456,8 @@ def compute_all_tables(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
     tables["correlation"] = df[corr_cols].corr().round(3).reset_index()
 
     # 표 10: 순위 구간(Tier)별 피봇테이블
-    bins = [0, 50, 100, 200, 500]
+    max_rank = max(500, int(df["rank"].max()))
+    bins = [0, 50, 100, 200, max_rank]
     labels = ["1~50위", "51~100위", "101~200위", "201위 이상"]
     df["rank_tier"] = pd.cut(df["rank"], bins=bins, labels=labels)
     tables["tier_pivot"] = pd.pivot_table(
@@ -464,16 +478,28 @@ def compute_all_tables(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
 
 def main() -> None:
     """EDA 스크립트 실행 메인 함수."""
+    parser = argparse.ArgumentParser(description="교보문고 IT 베스트셀러 EDA 분석기")
+    parser.add_argument(
+        "--data-path",
+        type=str,
+        default=None,
+        help="분석할 CSV 파일 경로 (미지정 시 data/ 디렉터리 내 최신 파일 자동 선택)",
+    )
+    args = parser.parse_args()
+
+    target_data_path = Path(args.data_path) if args.data_path else get_latest_data_path()
+
     print("=" * 60)
     print("📊 20년차 시니어 데이터 분석가 EDA 파이프라인 가동")
+    print(f"- 대상 데이터 파일: {target_data_path}")
     print("=" * 60)
 
-    if not DATA_PATH.exists():
-        print(f"[오류] 데이터 파일이 존재하지 않습니다: {DATA_PATH}")
+    if not target_data_path.exists():
+        print(f"[오류] 데이터 파일이 존재하지 않습니다: {target_data_path}")
         return
 
-    df = pd.read_csv(DATA_PATH)
-    print(f"[정보] 데이터 로드 완료: {DATA_PATH} (규모: {df.shape})")
+    df = pd.read_csv(target_data_path)
+    print(f"[정보] 데이터 로드 완료: {target_data_path} (규모: {df.shape})")
 
     # 1. 5단계 기본 탐색 실행
     run_basic_exploration(df)

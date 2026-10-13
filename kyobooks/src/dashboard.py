@@ -27,7 +27,18 @@ st.set_page_config(
 
 # 데이터 경로 (상대경로)
 BASE_DIR = Path(__file__).resolve().parent.parent  # kyobooks 디렉터리
-DATA_PATH = BASE_DIR / "data" / "kyobo_it_bestsellers_20261012.csv"
+
+
+def get_latest_data_path() -> Path:
+    """kyobooks/data 디렉터리에서 가장 최근의 베스트셀러 CSV 파일을 찾습니다."""
+    data_dir = BASE_DIR / "data"
+    csv_files = sorted(data_dir.glob("kyobo_it_bestsellers_*.csv"), reverse=True)
+    if csv_files:
+        return csv_files[0]
+    return data_dir / "kyobo_it_bestsellers_20261012.csv"
+
+
+DATA_PATH = get_latest_data_path()
 
 # ==============================================================================
 # 커스텀 CSS 스타일링
@@ -105,12 +116,13 @@ def load_data() -> pd.DataFrame:
     df["pub_year"] = df["pub_date"].dt.year.fillna(0).astype(int)
 
     # 가격대 구간 생성
-    bins = [0, 20000, 30000, 40000, 100000]
+    bins = [0, 20000, 30000, 40000, float("inf")]
     labels = ["2만원 이하", "2만~3만원", "3만~4만원", "4만원 초과"]
     df["price_tier"] = pd.cut(df["sale_price"], bins=bins, labels=labels)
 
     # 순위 구간 생성
-    rank_bins = [0, 50, 100, 200, 500]
+    max_rank = max(500, int(df["rank"].max())) if not df.empty else 500
+    rank_bins = [0, 50, 100, 200, max_rank]
     rank_labels = ["1~50위 (최상위)", "51~100위 (상위)", "101~200위 (중위)", "201위 이상 (하위)"]
     df["rank_tier"] = pd.cut(df["rank"], bins=rank_bins, labels=rank_labels)
 
